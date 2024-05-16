@@ -9,14 +9,13 @@ import Routes.test_route
 
 env_path = './Database/config_database.env'
 load_dotenv(dotenv_path=env_path)
+BDD_Name = os.getenv('BDD_Name')
 Username = os.getenv('Username_')
-print(Username)
 Password = os.getenv('Password')
-print(Password)
 
 app = Flask(__name__)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql+pymysql://{Username}:{Password}@localhost/web-project-s7'
+app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql+pymysql://{Username}:{Password}@localhost/{BDD_Name}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 
