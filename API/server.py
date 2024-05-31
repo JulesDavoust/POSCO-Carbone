@@ -16,7 +16,7 @@ Password = os.getenv('Password')
 app = Flask(__name__)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql+pymysql://{Username}:{Password}@localhost/{BDD_Name}'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+# app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 
 Routes.test_route.init_routes_test_route(app)
