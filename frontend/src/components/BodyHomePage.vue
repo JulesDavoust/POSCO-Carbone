@@ -57,7 +57,7 @@
                   </div>
               </div>
               </div>
-              <button class="btn connect-button mt-3">Contactez-nous</button>
+              <button class="btn connect-button mt-3">Connectez-nous</button>
           </div>
           </div>
       </div>
@@ -191,9 +191,13 @@
   height: auto;
 }
 
-.quote-section {
-    padding: 50px 0;
+
+
+@media(max-width:767px){
+  .quote-section {
+    padding-top: 10vh;
   }
+}
   
   .quote-box {
     background-color: #C1E4C3;
@@ -236,6 +240,8 @@
   
   .footer-logo {
     max-width: 100px;
+    margin: 10px;
+    border-radius: 30px;
   }
   
   .language-options .btn-language {

@@ -1,11 +1,35 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
+import FAQView from '../views/FAQView.vue'
+import EspacePersonnelView from '../views/EspacePersonnelView.vue'
+import EspaceEfreiView from '../views/EspaceEfreiView.vue'
+import ConseilsView from '../views/ConseilsView.vue'
 
 const routes = [
   {
     path: '/',
-    name: 'home',
+    name: 'Accueil',
     component: HomeView
+  },
+  {
+    path: '/FAQ',
+    name: 'FAQ',
+    component: FAQView
+  },
+  {
+    path: '/Espace-Personnel',
+    name: 'EspacePersonnel',
+    component: EspacePersonnelView
+  },
+  {
+    path: '/Espace-Efrei',
+    name: 'EspaceEfrei',
+    component: EspaceEfreiView
+  },
+  {
+    path: '/Conseils',
+    name: 'Conseils',
+    component: ConseilsView
   },
   // {
   //   path: '/about',
