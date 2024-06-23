@@ -57,7 +57,7 @@
                   </div>
               </div>
               </div>
-              <button class="btn connect-button mt-3">Connectez-nous</button>
+              <button class="btn connect-button mt-3" @click="connectButton()">Connectez-nous</button>
           </div>
           </div>
       </div>
@@ -88,14 +88,43 @@
           </div>
       </div>
     </div>
+    <login_registerPage v-if="modal"></login_registerPage>
   </div>
   </template>
   
-  <script>
-  export default {
-    name: 'FeatureSection',
-  };
-  </script>
+<script>
+import AuthService from "../services/auth.service.js";
+import bootstrap from "bootstrap/dist/js/bootstrap.bundle";
+import login_registerPage from './login_registerPage.vue';
+
+export default {
+  name: 'BodyHome',
+  components:{
+    login_registerPage
+  },
+  data(){
+    return{
+      modal: true
+    }
+  },
+  methods:{
+    connectButton(page){
+          console.log(this.modal)
+          if (AuthService.isLogged()) {
+            alert('Vous êtes déjà connecté.')
+          }
+          else{
+              console.log('modal')
+              this.$nextTick(() => {
+                  var modal = new bootstrap.Modal(document.getElementById('loginModal'));
+                  modal.show();
+              });
+          }
+          
+    },
+  }
+};
+</script>
   
 <style scoped>
 

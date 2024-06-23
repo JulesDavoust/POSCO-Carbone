@@ -63,6 +63,7 @@ data(){
 methods:{
     switchPage(page){
         console.log(this.modal)
+        // AuthService.isLogged()
         if (true) {
             switch (page) {
                 case 0:
@@ -101,7 +102,7 @@ methods:{
 
 
     toggleDropdown(){
-        if(AuthService.isLogged()){
+        if(true){
             this.drop = !this.drop;
         }else{
             this.$nextTick(() => {

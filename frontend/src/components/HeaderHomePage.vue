@@ -13,11 +13,10 @@
 
 <script>
 export default {
-
 }
 </script>
 
-<style>
+<style scoped>
 .video-container{
     position: relative;
     width: 100%;
