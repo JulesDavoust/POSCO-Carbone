@@ -47,6 +47,21 @@
                                 <div class="accordion-body">
                                     <form @submit.prevent="onSubmittingRegister">
                                         <div class="form-floating mb-3">
+                                            <input type="text" class="form-control" id="PrenomLoginInput" v-model="loginPassword"
+                                                placeholder="Prenom">
+                                            <label for="PrenomLoginInput">Prénom</label>
+                                        </div>
+                                        <div class="form-floating mb-3">
+                                            <input type="text" class="form-control" id="NomLoginInput" v-model="loginPassword"
+                                                placeholder="Nom">
+                                            <label for="NomLoginInput">Nom</label>
+                                        </div>
+                                        <div class="form-floating mb-3">
+                                            <input type="text" class="form-control" id="NumEtudiantLoginInput" v-model="loginPassword"
+                                                placeholder="NumEtudiant">
+                                            <label for="NumEtudiantLoginInput">Numéro Etudiant</label>
+                                        </div>
+                                        <div class="form-floating mb-3">
                                             <input type="email" class="form-control" id="emailRegisterInput" v-model="registerEmail"
                                                 placeholder="name@example.com">
                                             <label for="emailRegisterInput">Email address</label>
@@ -82,8 +97,9 @@ export default {
         return {
             loginEmail: '',
             loginPassword: '',
-            registerUsername: '',
-            registerPP: '',
+            registerPrenom: '',
+            registerNom: '',
+            registerNumEtudiant : '',
             registerEmail: '',
             registerPassword: '',
         };
@@ -93,7 +109,7 @@ export default {
             AuthService.login({ email: loginEmail.value, password: loginPassword.value });
         },
         onSubmittingRegister() {
-            AuthService.register({emailUser: registerEmail.value, passwordUser: registerPassword.value})
+            AuthService.register({prenomUser: registerPrenom.value, nomUser:registerNom.value, numUser: registerNumEtudiant.value ,emailUser: registerEmail.value, passwordUser: registerPassword.value})
         }
     }
 }

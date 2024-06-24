@@ -39,7 +39,7 @@ class AuthService {
         .then(response => response.json())
         .then(data => {
           if (data.message === "Registered") {
-            this.login({ email: user.emailUser, password: user.passwordUser })
+            this.login({ nom: user.prenomUser, prenom: user.prenomUser, numEtudiant: user.numUser, email: user.emailUser, password: user.passwordUser })
               .then(data => isLoggedDisplay.value = this.isLogged());
           } else {
             const errorDisplay = document.getElementsByClassName('errorMessage')[1];
