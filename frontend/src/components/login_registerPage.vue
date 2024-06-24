@@ -28,7 +28,7 @@
                                                 placeholder="Password">
                                             <label for="passwordLoginInput">Password</label>
                                         </div>
-                                        <p class="errorMessage hide ps-2 mb-1"></p>
+                                        <p class="errorMessage ps-2 mb-1" v-if="loginError">{{ loginError }}</p>
                                         <div class="text-end">
                                             <button id="loginButton" type="submit" class="btn btn-primary">Login</button>
                                         </div>
@@ -47,31 +47,42 @@
                                 <div class="accordion-body">
                                     <form @submit.prevent="onSubmittingRegister">
                                         <div class="form-floating mb-3">
-                                            <input type="text" class="form-control" id="PrenomLoginInput" v-model="loginPassword"
+                                            <input type="text" class="form-control" id="PrenomLoginInput" v-model="registerPrenom"
                                                 placeholder="Prenom">
                                             <label for="PrenomLoginInput">Prénom</label>
                                         </div>
                                         <div class="form-floating mb-3">
-                                            <input type="text" class="form-control" id="NomLoginInput" v-model="loginPassword"
+                                            <input type="text" class="form-control" id="NomLoginInput" v-model="registerNom"
                                                 placeholder="Nom">
                                             <label for="NomLoginInput">Nom</label>
                                         </div>
                                         <div class="form-floating mb-3">
-                                            <input type="text" class="form-control" id="NumEtudiantLoginInput" v-model="loginPassword"
+                                            <input type="text" class="form-control" id="NumEtudiantLoginInput" v-model="registerNumEtudiant"
                                                 placeholder="NumEtudiant">
                                             <label for="NumEtudiantLoginInput">Numéro Etudiant</label>
                                         </div>
                                         <div class="form-floating mb-3">
+                                            <select class="form-control" id="niveauRegisterSelect" v-model="registerPromo">
+                                                <option value="" disabled selected>Select your level</option>
+                                                <option value="L1">L1</option>
+                                                <option value="L2">L2</option>
+                                                <option value="L3">L3</option>
+                                                <option value="M1">M1</option>
+                                                <option value="M2">M2</option>
+                                            </select>
+                                            <label for="niveauRegisterSelect">Niveau</label>
+                                        </div>
+                                        <div class="form-floating mb-3">
                                             <input type="email" class="form-control" id="emailRegisterInput" v-model="registerEmail"
                                                 placeholder="name@example.com">
-                                            <label for="emailRegisterInput">Email address</label>
+                                            <label for="emailRegisterInput">Adresse email</label>
                                         </div>
                                         <div class="form-floating mb-3">
                                             <input type="password" class="form-control" id="passwordRegisterInput" v-model="registerPassword"
                                                 placeholder="Password">
-                                            <label for="passwordRegisterInput">Password</label>
+                                            <label for="passwordRegisterInput">Mot de passe</label>
                                         </div>
-                                        <p class="errorMessage hide ps-2 mb-1"></p>
+                                        <p class="errorMessage ps-2 mb-1" v-if="registerError">{{ registerError }}</p>
                                         <div class="text-end">
                                             <button id="registerButton" type="submit" class="btn btn-primary">Register</button>
                                         </div>
@@ -81,6 +92,7 @@
                         </div>
                     </div>
                 </div>
+                <p class="errorMessage ps-2 mb-1" v-if="generalError">{{ generalError }}</p>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
@@ -102,14 +114,24 @@ export default {
             registerNumEtudiant : '',
             registerEmail: '',
             registerPassword: '',
+            registerPromo: '',
+            loginError: '',
+            registerError: '',
+            generalError: ''
         };
     },
     methods: {
         onSubmittingLogin() {
-            AuthService.login({ email: loginEmail.value, password: loginPassword.value });
+            AuthService.login({ email: this.loginEmail, password: this.loginPassword })
+                .catch(error => {
+                    this.loginError = error.message || 'An error occurred during login.';
+                });
         },
         onSubmittingRegister() {
-            AuthService.register({prenomUser: registerPrenom.value, nomUser:registerNom.value, numUser: registerNumEtudiant.value ,emailUser: registerEmail.value, passwordUser: registerPassword.value})
+            AuthService.register({promoUser: this.registerPromo, prenomUser: this.registerPrenom, nomUser: this.registerNom, numUser: this.registerNumEtudiant ,emailUser: this.registerEmail, passwordUser: this.registerPassword })
+                .catch(error => {
+                    this.registerError = error.message || 'An error occurred during registration.';
+                });
         }
     }
 }

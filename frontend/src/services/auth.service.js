@@ -1,6 +1,7 @@
 import router from "../router";
+import bootstrap from "bootstrap/dist/js/bootstrap.bundle";
 
-const API_URL = "http://localhost:8080/";
+const API_URL = "http://localhost:5000/";
 
 
 class AuthService {
@@ -15,13 +16,18 @@ class AuthService {
       })
         .then(response => response.json())
         .then(data => {
-          if (data.accessToken) {
-            localStorage.setItem("user", JSON.stringify(data));
-            router.push({ name: 'home' });
+          console.log(data)
+          if (data[0].accessToken) {
+            localStorage.setItem("user", JSON.stringify(data[0]));
+
+            let modalElement = document.getElementById('loginModal');
+            let modal = bootstrap.Modal.getInstance(modalElement);
+            modal.hide();
+
+            router.push({ name: 'Accueil' });
           } else {
-            const errorDisplay = document.getElementsByClassName('errorMessage')[0];
-            errorDisplay.textContent = data.message;
-            errorDisplay.classList.remove('hide');
+            console.log(data[0]['message'])
+            return Promise.reject(new Error(data[0]['message'] || 'Login failed'));
           }
       });
     }
@@ -29,6 +35,8 @@ class AuthService {
 
   async register(user, isLoggedDisplay) {
     if (!this.isLogged()){
+      console.log(user)
+      console.log(isLoggedDisplay)
       await fetch(API_URL + 'user/register', {
         method: 'POST',
         headers: {
@@ -38,13 +46,17 @@ class AuthService {
       })
         .then(response => response.json())
         .then(data => {
-          if (data.message === "Registered") {
-            this.login({ nom: user.prenomUser, prenom: user.prenomUser, numEtudiant: user.numUser, email: user.emailUser, password: user.passwordUser })
-              .then(data => isLoggedDisplay.value = this.isLogged());
+          console.log(data[0]['message'])
+          if (data[0]['message'] === "Registered") {
+            this.login({promo: user.promoUser, nom: user.prenomUser, prenom: user.prenomUser, numEtudiant: user.numUser, email: user.emailUser, password: user.passwordUser })
+              .then(data => {
+                print(data)
+                isLoggedDisplay = this.isLogged()
+                print(isLoggedDisplay)
+              });
           } else {
-            const errorDisplay = document.getElementsByClassName('errorMessage')[1];
-            errorDisplay.textContent = data.message;
-            errorDisplay.classList.remove('hide');
+            console.log(data[0]['message'])
+            return Promise.reject(new Error(data[0]['message'] || 'Registration failed'));
           }
       });
 

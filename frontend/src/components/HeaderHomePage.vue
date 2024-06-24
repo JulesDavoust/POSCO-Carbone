@@ -12,7 +12,30 @@
 </template>
 
 <script>
+import AuthService from "../services/auth.service.js";
 export default {
+    data(){
+        return{
+            message:''
+        }
+    },  
+    methods:{
+        // async Savoir(){
+        //     fetch(`http://localhost:5000/`,
+        //     {
+        //         headers: AuthService.authHeader()
+        //     }
+        //     )
+        //     .then(response=>response.json())
+        //     .then(data => {
+        //         console.log('my pseudo : ',data);
+        //         this.message = data
+        //     })
+        //     .catch(error => {
+        //         console.error(error);
+        //         }); 
+        //     }
+    }
 }
 </script>
 

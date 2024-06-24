@@ -7,8 +7,8 @@ class Question(db.Model):
     Type = db.Column(db.String(50), nullable=False)
     Catégorie = db.Column(db.String(50), nullable=False)
 
-    def __repr__(self):
-        return f'{self.Question}'
+    # def __repr__(self):
+    #     return f'{self.Question}'
 
 
 class Formulaire(db.Model):
@@ -17,8 +17,8 @@ class Formulaire(db.Model):
     Nom_Formulaire = db.Column(db.String(50), nullable=False)
     Description_Formulaire = db.Column(db.String(250), nullable=False)
 
-    def __repr__(self):
-        return f'{self.Formulaire}'
+    # def __repr__(self):
+    #     return f'{self.Formulaire}'
 
 
 class EmissionCO2(db.Model):
@@ -27,8 +27,8 @@ class EmissionCO2(db.Model):
     Element_EmissionCO2 = db.Column(db.String(50), nullable=False)
     Coefficient_EmissionCO2 = db.Column(db.Numeric(15, 2), nullable=False)
 
-    def __repr__(self):
-        return f'{self.EmissionCO2}'
+    # def __repr__(self):
+    #     return f'{self.EmissionCO2}'
 
 
 class BilanCarbone(db.Model):
@@ -41,8 +41,8 @@ class BilanCarbone(db.Model):
 
     formulaire = db.relationship('Formulaire', backref=db.backref('bilan_carbone', uselist=False))
 
-    def __repr__(self):
-        return f'{self.BilanCarbone}'
+    # def __repr__(self):
+    #     return f'{self.BilanCarbone}'
 
 
 class Conseil(db.Model):
@@ -50,8 +50,8 @@ class Conseil(db.Model):
     ID_Conseil = db.Column(db.Integer, primary_key=True, autoincrement=True)
     Texte = db.Column(db.String(200), nullable=False)
 
-    def __repr__(self):
-        return f'{self.Conseil}'
+    # def __repr__(self):
+    #     return f'{self.Conseil}'
 
 
 class Promotion(db.Model):
@@ -59,8 +59,8 @@ class Promotion(db.Model):
     ID_Promotion = db.Column(db.Integer, primary_key=True)
     Année = db.Column(db.String(50), nullable=False)
 
-    def __repr__(self):
-        return f'{self.Promotion}'
+    # def __repr__(self):
+    #     return f'{self.Promotion}'
 
 
 class Utilisateur_EFREI(db.Model):
@@ -69,13 +69,13 @@ class Utilisateur_EFREI(db.Model):
     Nom = db.Column(db.String(50), nullable=False)
     Prénom = db.Column(db.String(50), nullable=False)
     Email = db.Column(db.String(60), nullable=False)
-    MotDePasse_Utilisateur = db.Column(db.String(150), nullable=False)
+    MotDePasse_Utilisateur = db.Column(db.String(5000), nullable=False)
     ID_Promotion = db.Column(db.Integer, db.ForeignKey('Promotion.ID_Promotion'), nullable=False)
 
     promotion = db.relationship('Promotion', backref=db.backref('utilisateurs', lazy=True))
 
-    def __repr__(self):
-        return f'{self.Utilisateur_EFREI}'
+    # def __repr__(self):
+    #     return f'{self.Utilisateur_EFREI}'
 
 
 class Remplir(db.Model):
@@ -86,8 +86,8 @@ class Remplir(db.Model):
     utilisateur = db.relationship('Utilisateur_EFREI', backref=db.backref('remplir', lazy=True))
     formulaire = db.relationship('Formulaire', backref=db.backref('remplir', lazy=True))
 
-    def __repr__(self):
-        return f'{self.Remplir}'
+    # def __repr__(self):
+    #     return f'{self.Remplir}'
 
 
 class Avoir(db.Model):
@@ -98,8 +98,8 @@ class Avoir(db.Model):
     question = db.relationship('Question', backref=db.backref('avoir', lazy=True))
     formulaire = db.relationship('Formulaire', backref=db.backref('avoir', lazy=True))
 
-    def __repr__(self):
-        return f'{self.Avoir}'
+    # def __repr__(self):
+    #     return f'{self.Avoir}'
 
 
 class Contenir(db.Model):
@@ -110,8 +110,8 @@ class Contenir(db.Model):
     emissionCO2 = db.relationship('EmissionCO2', backref=db.backref('contenir', lazy=True))
     bilanCarbone = db.relationship('BilanCarbone', backref=db.backref('contenir', lazy=True))
 
-    def __repr__(self):
-        return f'{self.Contenir}'
+    # def __repr__(self):
+    #     return f'{self.Contenir}'
 
 
 class Donner(db.Model):
@@ -122,6 +122,6 @@ class Donner(db.Model):
     utilisateur = db.relationship('Utilisateur_EFREI', backref=db.backref('donner', lazy=True))
     conseil = db.relationship('Conseil', backref=db.backref('donner', lazy=True))
 
-    def __repr__(self):
-        return f'{self.Donner}'
+    # def __repr__(self):
+    #     return f'{self.Donner}'
 

@@ -1,5 +1,6 @@
 from Functions.user_functions import signin, register
 from flask import jsonify, request
+from middleware.authMiddleware import verify_token
 
 def init_user_routes(app, db):
     @app.route('/user/signin', methods=['POST'])
