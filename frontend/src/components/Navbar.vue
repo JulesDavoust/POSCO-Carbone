@@ -3,19 +3,13 @@
         <nav class="navbar navbar-expand-lg">
             <div class="container-fluid">
                 <a class="navbar-brand" href="#">
-                    <img src="../assets/logo.png" alt="Bootstrap" width="108" height="73">
+                    <img src="../assets/logo.png" @click="switchPage(0)" alt="Bootstrap" width="108" height="73">
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarText">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                        <li class="nav-item">
-                            <div class="A" @click="switchPage(0)"><a class="nav-link active" aria-current="page" href="#">Accueil</a></div>
-                        </li>
-                        <li class="nav-item">
-                            <div class="EP" @click="switchPage(1)"><a class="nav-link">Espace Personnel</a></div>
-                        </li>
                         <li class="nav-item">
                             <div class="EE" @click="switchPage(2)"><a class="nav-link">Espace EFREI</a></div>
                         </li>

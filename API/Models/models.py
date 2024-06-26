@@ -125,3 +125,15 @@ class Donner(db.Model):
     # def __repr__(self):
     #     return f'{self.Donner}'
 
+class Reponse(db.Model):
+    __tablename__ = 'Reponse'
+    ID_Reponse = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    Texte_reponse = db.Column(db.String(500), nullable=False)
+    Type = db.Column(db.String(50), nullable=False)
+    Catégorie = db.Column(db.String(50), nullable=False)
+    ID_Question = db.Column(db.Integer, db.ForeignKey('Question.ID_Question'), nullable=False)
+    ID_EmissionCO2 = db.Column(db.Integer, db.ForeignKey('EmissionCO2.ID_EmissionCO2'), nullable=True)
+
+    question = db.relationship('Question', backref=db.backref('reponses', lazy=True))
+    emissionCO2 = db.relationship('EmissionCO2', backref=db.backref('reponses', lazy=True))
+
