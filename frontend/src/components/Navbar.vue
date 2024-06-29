@@ -11,12 +11,6 @@
                 <div class="collapse navbar-collapse" id="navbarText">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item">
-                            <div class="A" @click="switchPage(0)"><a class="nav-link active" aria-current="page" href="#">Accueil</a></div>
-                        </li>
-                        <li class="nav-item">
-                            <div class="EP" @click="switchPage(1)"><a class="nav-link">Espace Personnel</a></div>
-                        </li>
-                        <li class="nav-item">
                             <div class="EE" @click="switchPage(2)"><a class="nav-link">Espace EFREI</a></div>
                         </li>
                         <li class="nav-item">
@@ -64,25 +58,17 @@ methods:{
     switchPage(page){
         console.log(this.modal)
         // 
-        if (AuthService.isLogged()) {
+        if (true) {
             switch (page) {
                 case 0:
-                    console.log("accueil")
-                    this.$router.push({'name':'Accueil'})
-                    break;
-                case 1:
-                    console.log("EspacePersonnel")
-                    this.$router.push({'name':'EspacePersonnel'})
-                    break;
-                case 2:
                     console.log("EspaceEfrei")
                     this.$router.push({'name':'EspaceEfrei'})
                     break;
-                case 3:
+                case 1:
                     console.log("Conseils")
                     this.$router.push({'name':'Conseils'})
                     break;
-                case 4:
+                case 2:
                     console.log("FAQ")
                     this.$router.push({'name':'FAQ'})
                     break;
