@@ -1,9 +1,14 @@
 <template>
   <div>
     <div class="container" v-if="indexpage === 'secondpage'">
+      <!-- Page d'accueil -->
+      <div v-if="!started" class="text-center mt-5">
+        <h1>Bienvenue sur le calculateur de bilan carbone</h1>
+        <button class="btn btn-primary mt-4" @click="startForm">Commencer le questionnaire</button>
+      </div>
 
       <!-- Formulaire -->
-      <div class="conteneur text-center">
+      <div v-else class="conteneur text-center">
         <div class="card-wrapper">
           <div class="progress-container mb-3">
             <div class="progress" style="height: 30px;">
@@ -35,7 +40,7 @@
         </div>
       </div>
     </div>
-    <BilanEEPage v-else :bilan-moy_prop="moyBilanCO2" :bilan_prop="bilanCO2" :emission="saveEmission" />
+    <BilanEEPageVue v-else :bilan-moy_prop="moyBilanCO2" :bilan_prop="bilanCO2" :emission="saveEmission" />
   </div>
 </template>
 
@@ -43,15 +48,14 @@
 
 
 <script>
-import BilanEEPage from './BilanEEPage.vue';
-import AuthService from '../../services/auth.service.js'
+import BilanEEPageVue from './Questionnaire/BilanEEPage.vue';
+
 export default {
   components: {
-    BilanEEPage
+    BilanEEPageVue
   },
   data() {
     return {
-      API_URL: 'http://localhost:5000/',
       moyBilanCO2: 50,
       started: false,
       currentQuestion: 0,
@@ -139,15 +143,15 @@ export default {
       randomTransition: 'fade'
     };
   },
-  props: {
-    token: String
-  },
   computed: {
     filteredQuestions() {
       return this.questions.filter(question => question.faite);
     }
   },
   methods: {
+    startForm() {
+      this.started = true;
+    },
     nextQuestion() {
       if (this.filteredQuestions[this.currentQuestion].type === 'text') {
         if (this.textReponse) {
@@ -221,30 +225,8 @@ export default {
           return '';
       }
     },
-    // finishQuestionnaire() {
-    //   this.indexpage = 'bilanpage';
-    // },
-    async finishQuestionnaire() {
-        this.indexpage = 'bilanpage';
-        try {
-            const response = await fetch(`${this.API_URL}questionnaire/complete`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ token: this.token })
-            });
-
-            const data = await response.json();
-            if (data.message === 'Questionnaire completed') {
-                this.token = data.new_token;
-                localStorage.setItem('swim', this.token);
-            } else {
-                console.error('Error marking questionnaire as completed:', data.message);
-            }
-        } catch (error) {
-            console.error('An error occurred while marking the questionnaire as completed:', error);
-        }
+    finishQuestionnaire() {
+      this.indexpage = 'bilanpage';
     }
   }
 };

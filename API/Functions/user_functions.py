@@ -1,9 +1,13 @@
-from flask import jsonify
+from flask import jsonify, request
+from flask_mail import Message
+
 import Models.models as models
 from werkzeug.security import check_password_hash, generate_password_hash
 import datetime
 import jwt
 import re
+import logging
+
 
 def signin(data, app):
     print(data)
@@ -78,7 +82,11 @@ def register(data, db):
         'Nom': data['nomUser'],
         'Num_Utilisateur': data['numUser'],
         'ID_Promotion': idPromotion,
-        'MotDePasse_Utilisateur': generate_password_hash(data['passwordUser'])
+        'MotDePasse_Utilisateur': generate_password_hash(data['passwordUser']),
+        'notification_swim':None,
+        'notification_semestre':None,
+        'token_swim': None,
+        'token_semestre': None
     }
     print('New user data: ', new_user)
 
@@ -99,3 +107,114 @@ def register(data, db):
     except Exception as e:
         print("Error during registration: ", str(e))
         return {'message': str(e) or 'Some error occurred while creating the new user.'}, 500
+
+def set_notification_swim(user_id, app, db):
+    user = models.Utilisateur_EFREI.query.get(user_id)
+    if not user:
+        return jsonify({'message': 'User not found'}), 404
+    
+    user.notification_swim = True
+    db.session.commit()
+    return jsonify({'message': 'Notification swim set to true'}), 200
+
+def set_notification_semestre(user_id, app, db):
+    user = models.Utilisateur_EFREI.query.get(user_id)
+    if not user:
+        return jsonify({'message': 'User not found'}), 404
+    
+    user.notification_semestre = True
+    db.session.commit()
+    return jsonify({'message': 'Notification semestre set to true'}), 200
+
+def send_notifications(app, db, mail):
+    with app.app_context():
+        users = db.session.query(models.Utilisateur_EFREI).filter(
+            (models.Utilisateur_EFREI.notification_swim == True) |
+            (models.Utilisateur_EFREI.notification_semestre == True)
+        ).all()
+
+        for user in users:
+            try:
+                expiration = datetime.datetime.utcnow() + datetime.timedelta(hours=24)
+                if user.notification_swim:
+                    payload = {
+                        'user_id': user.Num_Utilisateur,
+                        'exp': expiration,
+                        'type': 'swim',
+                        'completed': False
+                    }
+                    token = jwt.encode(payload, app.config['SECRET_KEY'], algorithm='HS256')
+                    user.token_swim = token
+
+                    link = f"http://localhost:8080/questionnaire_swim?token={token}"
+                    msg = Message('Weekly SWIM Notification', sender=app.config['MAIL_USERNAME'], recipients=[user.Email])
+                    msg.body = f'Please complete the weekly SWIM questionnaire by clicking on the following link: {link}'
+                    mail.send(msg)
+
+                if user.notification_semestre:
+                    payload = {
+                        'user_id': user.Num_Utilisateur,
+                        'exp': expiration,
+                        'type': 'semestre',
+                        'completed': False
+                    }
+                    token = jwt.encode(payload, app.config['SECRET_KEY'], algorithm='HS256')
+                    user.token_semestre = token
+
+                    link = f"http://localhost:8080/questionnaire_sem?token={token}"
+                    msg = Message('Semester Notification', sender=app.config['MAIL_USERNAME'], recipients=[user.Email])
+                    msg.body = f'Please complete the semester questionnaire by clicking on the following link: {link}'
+                    mail.send(msg)
+
+                db.session.commit()
+            except Exception as e:
+                db.session.rollback()
+                continue
+
+
+def check_and_update_swim_notification(user_id, db):
+    user = models.Utilisateur_EFREI.query.get(user_id)
+    if not user:
+        return jsonify({'message': 'User not found'}), 404
+
+    # Supposez que ID_Formulaire pour SWIM est une constante connue
+    SWIM_FORMULAIRE_ID = 1  # Remplacez par l'ID correct du formulaire SWIM
+
+    # Récupérer toutes les questions liées au formulaire SWIM
+    questions = db.session.query(models.Question).join(models.Avoir).filter(
+        models.Avoir.ID_Formulaire == SWIM_FORMULAIRE_ID
+    ).all()
+
+    # Vérifier si toutes les questions sont faites
+    all_done = all(question.Faite for question in questions)
+
+    if all_done:
+        user.notification_swim = False
+        db.session.commit()
+        return jsonify({'message': 'All SWIM questions are done. notification_swim set to false'}), 200
+    else:
+        return jsonify({'message': 'Not all SWIM questions are done'}), 200
+    
+def check_and_update_sem_notification(user_id, db):
+    user = models.Utilisateur_EFREI.query.get(user_id)
+    if not user:
+        return jsonify({'message': 'User not found'}), 404
+
+    # Supposez que ID_Formulaire pour SWIM est une constante connue
+    SWIM_FORMULAIRE_ID = 2  # Remplacez par l'ID correct du formulaire SWIM
+
+    # Récupérer toutes les questions liées au formulaire SWIM
+    questions = db.session.query(models.Question).join(models.Avoir).filter(
+        models.Avoir.ID_Formulaire == SWIM_FORMULAIRE_ID
+    ).all()
+
+    # Vérifier si toutes les questions sont faites
+    all_done = all(question.Faite for question in questions)
+
+    if all_done:
+        user.notification_semestre = False
+        db.session.commit()
+        return jsonify({'message': 'All SEM questions are done. notification_swim set to false'}), 200
+    else:
+        return jsonify({'message': 'Not all SEM questions are done'}), 200
+    

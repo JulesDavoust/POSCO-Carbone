@@ -1,44 +1,39 @@
 <template>
-    <div id="bilanpage">
-        <div class="container">
-            <div class="row justify-content-center my-4">
-                <div class="col-12 col-md-8 text-center">
-                    <h4 class="label">Mon empreinte :</h4>
-                    <div class="progress">
-                        <div class="progress-bar bg-success" role="progressbar" :style="{ width: bilan_prop + '%' }" :aria-valuenow="bilan_prop" aria-valuemin="0" aria-valuemax="100">{{ bilan_prop }}</div>
-                    </div>
-                    <h4 class="label-moy label">Empreinte moyenne :</h4>
-                    <div class="progress">
-                        <div class="progress-bar bg-success" role="progressbar" :style="{ width: bilanMoy_prop + '%' }" :aria-valuenow="bilanMoy_prop" aria-valuemin="0" aria-valuemax="100">{{ bilanMoy_prop }}</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="row justify-content-center my-4">
-                <div class="col-12 col-md-8 text-center">
-                    <h4 class="label">Mes principales sources d’émissions :</h4>
-                    <div v-for="(source, index) in sortedEmission" :key="index" class="my-2">
-                        <button class="btn btn-block text-left source-btn" :class="source.color" @click="toggleDetails(index)">
-                            {{ index + 1 }} : {{ source.name }} - {{ source.amount }} tonnes
-                        </button>
-                        <div v-if="activeSource === index" class="details">
-                            <div class="card mt-2" v-for="(advice, idx) in getAdvicesForSource(source.name)" :key="idx">
-                                <div class="card-body">
-                                    <h5 class="card-title">{{ advice.saving }} kg</h5>
-                                    <p class="card-text">{{ advice.description }}</p>
-                                    <p class="card-text"><small class="text-muted">{{ advice.percentage }}% de votre empreinte</small></p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+  <div id="bilanpage">
+    <div class="container">
+      <div class="row justify-content-center my-4">
+        <div class="col-12 col-md-5 text-center mb-4">
+          <h4 class="label">Mon empreinte :</h4>
+          <div class="progress mx-auto">
+            <div class="progress-bar bg-success" role="progressbar" :style="{ width: bilan_prop + '%' }" :aria-valuenow="bilan_prop" aria-valuemin="0" aria-valuemax="100">{{ bilan_prop }} kgCO2e</div>
+          </div>
+          <h4 class="label-moy label">Empreinte moyenne :</h4>
+          <div class="progress mx-auto">
+            <div class="progress-bar bg-success" role="progressbar" :style="{ width: bilanMoy_prop + '%' }" :aria-valuenow="bilanMoy_prop" aria-valuemin="0" aria-valuemax="100">{{ bilanMoy_prop }} kgCO2e</div>
+          </div>
         </div>
+        <div class="col-12 col-md-7 text-center">
+          <h4 class="label">Mes principales sources d’émissions :</h4>
+          <div v-for="(source, index) in sortedEmission" :key="index" class="my-2">
+            <button class="btn btn-block text-left source-btn" :style="{ backgroundColor: source.color }" @click="toggleDetails(index)">
+              {{ index + 1 }} : {{ source.name }} - {{ source.amount }} kgCO2e
+            </button>
+            <div v-if="activeSource === index" class="details">
+              <div class="card mt-2" v-for="(advice, idx) in getAdvicesForSource(source.name)" :key="idx">
+                <div class="card-body">
+                  <h5 class="card-title">{{ advice.saving }} kgCO2e</h5>
+                  <p class="card-text">{{ advice.description }} kgCO2e</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
+  </div>
 </template>
 
 
-  
 <script>
 export default {
   name: 'CarbonFootprint',
@@ -91,14 +86,19 @@ export default {
 };
 </script>
 
-  
 <style scoped>
+.progbar{
+  margin-right: 10%;
+}
+
 .label {
-  background-color: #C1E4C3;
-  padding: 10px 20px;
-  border-radius: 20px;
+  background-color: rgb(174, 211, 169);
+  padding: 10px 15px;
+  border-radius: 10px;
   display: inline-block;
-  margin-bottom: 10px;
+  margin-bottom: 15px;
+  font-size: 1rem;
+  font-weight: normal;
 }
 
 .source-btn {
@@ -109,6 +109,8 @@ export default {
   font-size: 1rem;
   color: white;
   cursor: pointer;
+  background-color: #6c757d; /* Default color if none provided */
+  margin-top: 10px;
 }
 
 .details .card {
@@ -119,29 +121,59 @@ export default {
 }
 
 .details .card-title {
-  font-size: 1.5rem;
-  margin-bottom: 10px;
+  font-size: 1.2rem;
+  margin-bottom: 5px;
 }
 
 .details .card-text {
-  font-size: 1rem;
+  font-size: 0.9rem;
 }
 
 .label-moy {
-  margin-top: 2%;
+  margin-top: 15px;
+}
+
+.progress {
+  height: 20px;
+  width: 100%;
+  max-width: 500px;
+  margin-bottom: 15px;
+}
+
+.progress-bar {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  font-weight: normal;
+  color: white;
 }
 
 .bg-blue {
-  background-color: blue;
+  background-color: blue !important;
 }
 
 .bg-red {
-  background-color: red;
+  background-color: red !important;
 }
 
 .bg-yellow {
-  background-color: yellow;
+  background-color: yellow !important;
+}
+@media (min-width: 769px) {
+  .container {
+    max-width: 1200px;
+    border-radius: 20px;
+    padding: 5vh;
+    background-color: #C1E4C3;
+  }
+}
+
+@media (max-width: 769px) {
+  .container {
+    max-width: 100%;
+    padding: 0 15px;
+  }
 }
 </style>
-
-  

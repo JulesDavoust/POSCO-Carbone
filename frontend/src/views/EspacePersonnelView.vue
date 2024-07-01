@@ -1,16 +1,16 @@
 <template>
     <div class="EspacePersonnel">
-        <NavbarVue></NavbarVue>
+        <Navbar></Navbar>
     </div>
 </template>
 
 <script>
-import NavbarVue from '../components/Navbar.vue'
+import Navbar from '../components/Navbar.vue'
 
 export default {
   name: 'EspacePersonnel',
   components: {
-    NavbarVue
+    Navbar
   }
 }
 </script>
