@@ -1,6 +1,6 @@
 <template>
   <div id="secondpage">
-    <div v-if="index === 'secondpage'">
+    <div class="cadre" v-if="index === 'secondpage'">
       <div class="row mt-4 justify-content-center align-items-center">
         <div class="col-12 col-md-8">
           <div class="feature-card">
@@ -63,6 +63,12 @@ export default {
 
   
 <style scoped>
+/* .cadre{
+  border: 3px solid #48b14f;
+  padding: 5%;
+  width: 90vh;
+} */
+
 .feature-card {
   background-color: #C1E4C3;
   border-radius: 20px;
