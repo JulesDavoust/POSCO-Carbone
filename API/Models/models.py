@@ -29,9 +29,19 @@ class BilanCarbone(db.Model):
     BilanTotal = db.Column(db.Numeric(15, 2), nullable=False)
     BilanCatégorie = db.Column(db.Numeric(15, 2), nullable=False)
     Date_BilanCarbone = db.Column(db.Date, nullable=False)
-    ID_Formulaire = db.Column(db.Integer, db.ForeignKey('Formulaire.ID_Formulaire'), nullable=False)
+    Num_Utilisateur = db.Column(db.Integer, db.ForeignKey('Utilisateur_EFREI.Num_Utilisateur'), nullable=False)
 
-    formulaire = db.relationship('Formulaire', backref=db.backref('bilan_carbone', uselist=False))
+    utilisateur = db.relationship('Utilisateur_EFREI', backref=db.backref('bilans_carbone', lazy=True))
+
+
+class Répondre(db.Model):
+    __tablename__ = 'Répondre'
+    Num_Utilisateur = db.Column(db.Integer, db.ForeignKey('Utilisateur_EFREI.Num_Utilisateur'), primary_key=True)
+    ID_Question = db.Column(db.Integer, db.ForeignKey('Question.ID_Question'), primary_key=True)
+    Faite = db.Column(db.Boolean, nullable=False)
+
+    utilisateur = db.relationship('Utilisateur_EFREI', backref=db.backref('répondre', lazy=True))
+    question = db.relationship('Question', backref=db.backref('répondre', lazy=True))
 
 
 class Conseil(db.Model):
@@ -65,8 +75,12 @@ class Utilisateur_EFREI(db.Model):
     Num_Utilisateur = db.Column(db.Integer, primary_key=True, autoincrement=True)
     Nom = db.Column(db.String(50), nullable=False)
     Prénom = db.Column(db.String(50), nullable=False)
-    Email = db.Column(db.String(60), nullable=False)
+    Email = db.Column(db.String(60), nullable=False, unique=True)
     MotDePasse_Utilisateur = db.Column(db.String(1000), nullable=False)
+    notification_swim = db.Column(db.Boolean, default=False)
+    notification_semestre = db.Column(db.Boolean, default=False)
+    token_swim = db.Column(db.String(5000))
+    token_semestre = db.Column(db.String(5000))
     ID_Promotion = db.Column(db.Integer, db.ForeignKey('Promotion.ID_Promotion'), nullable=False)
 
     promotion = db.relationship('Promotion', backref=db.backref('utilisateurs', lazy=True))

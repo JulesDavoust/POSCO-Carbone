@@ -4,6 +4,9 @@ import FAQView from '../views/FAQView.vue'
 import EspacePersonnelView from '../views/EspacePersonnelView.vue'
 import EspaceEfreiView from '../views/EspaceEfreiView.vue'
 import ConseilsView from '../views/ConseilsView.vue'
+import BilanEEPage from '../components/Questionnaire/BilanEEPage.vue'
+import QuestionnaireSWIM from '../views/QuestionnaireSWIM.vue'
+import QuestionnaireSEM from '../views/QuestionnaireSEM.vue'
 
 const routes = [
   {
@@ -31,6 +34,22 @@ const routes = [
     name: 'Conseils',
     component: ConseilsView
   },
+  {
+    path: '/bilan',
+    name: 'Bilan',
+    component: BilanEEPage,
+    props: true
+  },
+  {
+    path: '/questionnaire_swim',
+    name: 'QuestionnaireSWIM',
+    component: QuestionnaireSWIM
+  },
+  {
+    path: '/questionnaire_sem',
+    name: 'QuestionnaireSEM',
+    component: QuestionnaireSEM
+  }
   // {
   //   path: '/about',
   //   name: 'about',

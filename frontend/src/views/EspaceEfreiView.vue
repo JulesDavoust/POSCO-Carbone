@@ -1,24 +1,31 @@
 <template>
     <div class="EspaceEfrei">
-        <NavbarVue></NavbarVue>
-        <FirstPageEEPageVue></FirstPageEEPageVue>
+      <Navbar></Navbar>
+      <div class="conteneur">  
+        <FirstPageEEPage/>
+      </div>
     </div>
 </template>
 
 <script>
-import FirstPageEEPageVue from '../components/Questionnaire/FirstPageEEPage.vue'
-import NavbarVue from '../components/Navbar.vue'
+import FirstPageEEPage from '../components/Questionnaire/FirstPageEEPage.vue'
+import Navbar from '../components/Navbar.vue'
 
 
 export default {
   name: 'EspaceEfrei',
   components: {
-    NavbarVue,
-    FirstPageEEPageVue
+    Navbar,
+    FirstPageEEPage
   }
 }
 </script>
 
-<style>
-
+<style scoped>
+.conteneur{
+  display: flex;
+  justify-content: center; /* Centrage horizontal */
+  align-items: center;     /* Centrage vertical */
+  height: 100vh;           /* Utilise toute la hauteur de la fenêtre */
+}
 </style>

@@ -12,16 +12,16 @@
             </div>
             <button type="button" class="btn" @click="Start()">Je commence le questionnaire</button>
         </div>
-        <SecondPageEEPageVue v-if="currentpage === 'second'" />
+        <SecondPageEEPage v-if="currentpage === 'second'" />
     </div>
 </template>
 
 <script>
-import SecondPageEEPageVue from './SecondPageEEPage.vue'
+import SecondPageEEPage from './SecondPageEEPage.vue'
 
 export default {
     components:{
-        SecondPageEEPageVue
+        SecondPageEEPage
     },
     data(){
         return{
