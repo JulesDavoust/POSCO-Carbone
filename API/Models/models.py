@@ -29,9 +29,19 @@ class BilanCarbone(db.Model):
     BilanTotal = db.Column(db.Numeric(15, 2), nullable=False)
     BilanCatégorie = db.Column(db.Numeric(15, 2), nullable=False)
     Date_BilanCarbone = db.Column(db.Date, nullable=False)
-    ID_Formulaire = db.Column(db.Integer, db.ForeignKey('Formulaire.ID_Formulaire'), nullable=False)
+    Num_Utilisateur = db.Column(db.Integer, db.ForeignKey('Utilisateur_EFREI.Num_Utilisateur'), nullable=False)
 
-    formulaire = db.relationship('Formulaire', backref=db.backref('bilan_carbone', uselist=False))
+    utilisateur = db.relationship('Utilisateur_EFREI', backref=db.backref('bilans_carbone', lazy=True))
+
+
+class Répondre(db.Model):
+    __tablename__ = 'Répondre'
+    Num_Utilisateur = db.Column(db.Integer, db.ForeignKey('Utilisateur_EFREI.Num_Utilisateur'), primary_key=True)
+    ID_Question = db.Column(db.Integer, db.ForeignKey('Question.ID_Question'), primary_key=True)
+    Faite = db.Column(db.Boolean, nullable=False)
+
+    utilisateur = db.relationship('Utilisateur_EFREI', backref=db.backref('répondre', lazy=True))
+    question = db.relationship('Question', backref=db.backref('répondre', lazy=True))
 
 
 class Conseil(db.Model):
