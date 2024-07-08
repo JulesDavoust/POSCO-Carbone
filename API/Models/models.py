@@ -2,6 +2,7 @@ from Database.init_database import db
 
 class Question(db.Model):
     __tablename__ = 'Question'
+    __table_args__ = {'extend_existing': True}
     ID_Question = db.Column(db.Integer, primary_key=True, autoincrement=True)
     Texte = db.Column(db.String(150), nullable=False)
     Type = db.Column(db.String(50), nullable=False)
@@ -11,6 +12,7 @@ class Question(db.Model):
 
 class Formulaire(db.Model):
     __tablename__ = 'Formulaire'
+    __table_args__ = {'extend_existing': True}
     ID_Formulaire = db.Column(db.Integer, primary_key=True, autoincrement=True)
     Nom_Formulaire = db.Column(db.String(50), nullable=False)
     Description_Formulaire = db.Column(db.String(250), nullable=False)
@@ -18,6 +20,7 @@ class Formulaire(db.Model):
 
 class EmissionCO2(db.Model):
     __tablename__ = 'EmissionCO2'
+    __table_args__ = {'extend_existing': True}
     ID_EmissionCO2 = db.Column(db.Integer, primary_key=True, autoincrement=True)
     Element_EmissionCO2 = db.Column(db.String(50), nullable=False)
     Coefficient_EmissionCO2 = db.Column(db.Numeric(15, 2), nullable=False)
@@ -25,6 +28,7 @@ class EmissionCO2(db.Model):
 
 class BilanCarbone(db.Model):
     __tablename__ = 'BilanCarbone'
+    __table_args__ = {'extend_existing': True}
     ID_BilanCarbone = db.Column(db.Integer, primary_key=True, autoincrement=True)
     BilanTotal = db.Column(db.Numeric(15, 2), nullable=False)
     BilanCatégorie = db.Column(db.Numeric(15, 2), nullable=False)
@@ -36,6 +40,7 @@ class BilanCarbone(db.Model):
 
 class Répondre(db.Model):
     __tablename__ = 'Répondre'
+    __table_args__ = {'extend_existing': True}
     Num_Utilisateur = db.Column(db.Integer, db.ForeignKey('Utilisateur_EFREI.Num_Utilisateur'), primary_key=True)
     ID_Question = db.Column(db.Integer, db.ForeignKey('Question.ID_Question'), primary_key=True)
     Faite = db.Column(db.Boolean, nullable=False)
@@ -46,6 +51,7 @@ class Répondre(db.Model):
 
 class Conseil(db.Model):
     __tablename__ = 'Conseil'
+    __table_args__ = {'extend_existing': True}
     ID_Conseil = db.Column(db.Integer, primary_key=True, autoincrement=True)
     Texte = db.Column(db.String(200), nullable=False)
     Catégorie = db.Column(db.String(100), nullable=False)
@@ -53,12 +59,14 @@ class Conseil(db.Model):
 
 class Promotion(db.Model):
     __tablename__ = 'Promotion'
+    __table_args__ = {'extend_existing': True}
     ID_Promotion = db.Column(db.Integer, primary_key=True)
     Année = db.Column(db.String(50), nullable=False)
 
 
 class Reponse(db.Model):
     __tablename__ = 'Reponse'
+    __table_args__ = {'extend_existing': True}
     ID_Reponse = db.Column(db.Integer, primary_key=True, autoincrement=True)
     Texte_reponse = db.Column(db.String(500), nullable=False)
     Type = db.Column(db.String(50), nullable=False)
@@ -72,6 +80,7 @@ class Reponse(db.Model):
 
 class Utilisateur_EFREI(db.Model):
     __tablename__ = 'Utilisateur_EFREI'
+    __table_args__ = {'extend_existing': True}
     Num_Utilisateur = db.Column(db.Integer, primary_key=True, autoincrement=True)
     Nom = db.Column(db.String(50), nullable=False)
     Prénom = db.Column(db.String(50), nullable=False)
@@ -88,6 +97,7 @@ class Utilisateur_EFREI(db.Model):
 
 class Remplir(db.Model):
     __tablename__ = 'Remplir'
+    __table_args__ = {'extend_existing': True}
     Num_Utilisateur = db.Column(db.Integer, db.ForeignKey('Utilisateur_EFREI.Num_Utilisateur'), primary_key=True)
     ID_Formulaire = db.Column(db.Integer, db.ForeignKey('Formulaire.ID_Formulaire'), primary_key=True)
 
@@ -97,6 +107,7 @@ class Remplir(db.Model):
 
 class Avoir(db.Model):
     __tablename__ = 'Avoir'
+    __table_args__ = {'extend_existing': True}
     ID_Question = db.Column(db.Integer, db.ForeignKey('Question.ID_Question'), primary_key=True)
     ID_Formulaire = db.Column(db.Integer, db.ForeignKey('Formulaire.ID_Formulaire'), primary_key=True)
 
@@ -106,6 +117,7 @@ class Avoir(db.Model):
 
 class Contenir(db.Model):
     __tablename__ = 'Contenir'
+    __table_args__ = {'extend_existing': True}
     ID_EmissionCO2 = db.Column(db.Integer, db.ForeignKey('EmissionCO2.ID_EmissionCO2'), primary_key=True)
     ID_BilanCarbone = db.Column(db.Integer, db.ForeignKey('BilanCarbone.ID_BilanCarbone'), primary_key=True)
 
@@ -115,10 +127,9 @@ class Contenir(db.Model):
 
 class Donner(db.Model):
     __tablename__ = 'Donner'
+    __table_args__ = {'extend_existing': True}
     Num_Utilisateur = db.Column(db.Integer, db.ForeignKey('Utilisateur_EFREI.Num_Utilisateur'), primary_key=True)
     ID_Conseil = db.Column(db.Integer, db.ForeignKey('Conseil.ID_Conseil'), primary_key=True)
 
     utilisateur = db.relationship('Utilisateur_EFREI', backref=db.backref('donner', lazy=True))
     conseil = db.relationship('Conseil', backref=db.backref('donner', lazy=True))
-
-

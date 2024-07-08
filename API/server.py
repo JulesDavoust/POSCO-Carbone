@@ -8,11 +8,11 @@ from Database.init_database import db
 
 import os
 from dotenv import load_dotenv
-
-import Routes.system_routes
-import Routes.user_routes
+ 
 import Routes.co2_routes
-import Routes.formulaire_routes
+import Routes.formulaire_routes 
+import Routes.system_routes 
+import Routes.user_routes 
 
 env_path = './Database/config_database.env'
 load_dotenv(dotenv_path=env_path)
@@ -27,8 +27,9 @@ print(EmailUser, EmailPass, Password)
 app = Flask(__name__)
 CORS(app)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql+pymysql://{Username}:{Password}@localhost/{BDD_Name}'
-app.config['SECRET_KEY'] = "my-secret-key"
+# Configurer la base de données MySQL
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URI', 'mysql+mysqlconnector://root:root@localhost/posco')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 # app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 app.config['MAIL_SERVER'] = 'smtp.office365.com'
@@ -44,6 +45,10 @@ Routes.system_routes.init_system_routes(app)
 Routes.user_routes.init_user_routes(app, db, mail)
 Routes.co2_routes.init_co2_routes(app, db)
 Routes.formulaire_routes.init_formulaire_routes(app, db)
+
+
+with app.app_context():
+    db.create_all()
 
 def send_notifications_job():
     print("job")
