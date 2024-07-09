@@ -69,15 +69,17 @@ def init_user_routes(app, db, mail):
         output = [{'Num_Utilisateur': u.Num_Utilisateur, 'Nom': u.Nom, 'Prénom': u.Prénom, 'Email': u.Email, 'MotDePasse_Utilisateur': u.MotDePasse_Utilisateur, 'ID_Promotion': u.ID_Promotion} for u in utilisateurs]
         return jsonify(output)
 
-    @app.route('/utilisateurs/<id>', methods=['GET'])
-    def get_utilisateur(id):
-        utilisateur = UtilisateurEFREI.query.get_or_404(id)
+    @app.route('/utilisateurs', methods=['GET'])
+    @verify_token
+    def get_utilisateur():
+        utilisateur = UtilisateurEFREI.query.get_or_404(request.user_id)
         return jsonify({'Num_Utilisateur': utilisateur.Num_Utilisateur, 'Nom': utilisateur.Nom, 'Prénom': utilisateur.Prénom, 'Email': utilisateur.Email, 'MotDePasse_Utilisateur': utilisateur.MotDePasse_Utilisateur, 'ID_Promotion': utilisateur.ID_Promotion})
 
-    @app.route('/utilisateurs/<id>', methods=['PUT'])
-    def update_utilisateur(id):
+    @app.route('/utilisateurs', methods=['PUT'])
+    @verify_token
+    def update_utilisateur():
         data = request.get_json()
-        utilisateur = UtilisateurEFREI.query.get_or_404(id)
+        utilisateur = UtilisateurEFREI.query.get_or_404(request.user_id)
         utilisateur.Nom = data['Nom']
         utilisateur.Prénom = data['Prénom']
         utilisateur.Email = data['Email']
@@ -86,9 +88,10 @@ def init_user_routes(app, db, mail):
         db.session.commit()
         return jsonify({'message': 'Utilisateur_EFREI updated successfully'})
 
-    @app.route('/utilisateurs/<id>', methods=['DELETE'])
-    def delete_utilisateur(id):
-        utilisateur = UtilisateurEFREI.query.get_or_404(id)
+    @app.route('/utilisateurs', methods=['DELETE'])
+    @verify_token
+    def delete_utilisateur():
+        utilisateur = UtilisateurEFREI.query.get_or_404(request.user_id)
         db.session.delete(utilisateur)
         db.session.commit()
         return jsonify({'message': 'Utilisateur_EFREI deleted successfully'})
@@ -164,23 +167,26 @@ def init_user_routes(app, db, mail):
         output = [{'Num_Utilisateur': d.Num_Utilisateur, 'ID_Conseil': d.ID_Conseil} for d in donner_list]
         return jsonify(output)
 
-    @app.route('/donner/<Num_Utilisateur>/<ID_Conseil>', methods=['GET'])
-    def get_donner_item(Num_Utilisateur, ID_Conseil):
-        donner = Donner.query.get_or_404((Num_Utilisateur, ID_Conseil))
-        return jsonify({'Num_Utilisateur': donner.Num_Utilisateur, 'ID_Conseil': donner.ID_Conseil})
+    @app.route('/donner/<ID_Conseil>', methods=['GET'])
+    @verify_token
+    def get_donner_item(ID_Conseil):
+        donner = Donner.query.get_or_404((request.user_id, ID_Conseil))
+        return jsonify({'Num_Utilisateur': donner.request.user_id, 'ID_Conseil': donner.ID_Conseil})
 
     @app.route('/donner/<Num_Utilisateur>/<ID_Conseil>', methods=['PUT'])
-    def update_donner(Num_Utilisateur, ID_Conseil):
+    @verify_token
+    def update_donner(ID_Conseil):
         data = request.get_json()
-        donner = Donner.query.get_or_404((Num_Utilisateur, ID_Conseil))
+        donner = Donner.query.get_or_404((request.user_id, ID_Conseil))
         donner.Num_Utilisateur = data['Num_Utilisateur']
         donner.ID_Conseil = data['ID_Conseil']
         db.session.commit()
         return jsonify({'message': 'Donner updated successfully'})
 
-    @app.route('/donner/<Num_Utilisateur>/<ID_Conseil>', methods=['DELETE'])
-    def delete_donner(Num_Utilisateur, ID_Conseil):
-        donner = Donner.query.get_or_404((Num_Utilisateur, ID_Conseil))
+    @app.route('/donner/<ID_Conseil>', methods=['DELETE'])
+    @verify_token
+    def delete_donner(ID_Conseil):
+        donner = Donner.query.get_or_404((request.user_id, ID_Conseil))
         db.session.delete(donner)
         db.session.commit()
         return jsonify({'message': 'Donner deleted successfully'})

@@ -279,14 +279,21 @@ def init_formulaire_routes(app, db):
         
         return jsonify({'result': True})
 
-    @app.route('/question_non_repondue/<int:num_utilisateur>', methods=['GET'])
-    def get_question_non_repondue(num_utilisateur):
+
+    @app.route('/question_non_repondue', methods=['GET'])
+    @verify_token
+    def get_question_non_repondue():
+        # Récupérer l'ID de l'utilisateur à partir de la requête
+        num_utilisateur = request.user_id
+
         # Requête pour trouver les questions non répondues par l'utilisateur
-        question_non_repondue = db.session.query(Question).join(Répondre, 
+        question_non_repondue = db.session.query(Question).join(
+            Répondre, 
             (Question.ID_Question == Répondre.ID_Question) & 
             (Répondre.Num_Utilisateur == num_utilisateur) & 
-            (Répondre.Faite == False)).first()
-        
+            (Répondre.Faite == False)
+        ).first()
+
         if question_non_repondue:
             return jsonify({
                 'ID_Question': question_non_repondue.ID_Question,
@@ -296,8 +303,9 @@ def init_formulaire_routes(app, db):
             })
         else:
             return jsonify({'message': 'Toutes les questions ont été répondues par cet utilisateur.'}), 404
+
+
         
-    
     # Fonctions CRUD pour Remplir
     @app.route('/remplir', methods=['POST'])
     def create_remplir():
@@ -316,23 +324,26 @@ def init_formulaire_routes(app, db):
         output = [{'Num_Utilisateur': r.Num_Utilisateur, 'ID_Formulaire': r.ID_Formulaire} for r in remplir_list]
         return jsonify(output)
 
-    @app.route('/remplir/<Num_Utilisateur>/<ID_Formulaire>', methods=['GET'])
-    def get_remplir_item(Num_Utilisateur, ID_Formulaire):
-        remplir = Remplir.query.get_or_404((Num_Utilisateur, ID_Formulaire))
-        return jsonify({'Num_Utilisateur': remplir.Num_Utilisateur, 'ID_Formulaire': remplir.ID_Formulaire})
+    @app.route('/remplir/<ID_Formulaire>', methods=['GET'])
+    @verify_token
+    def get_remplir_item(ID_Formulaire):
+        remplir = Remplir.query.get_or_404((request.user_id, ID_Formulaire))
+        return jsonify({'Num_Utilisateur': remplir.request.user_id, 'ID_Formulaire': remplir.ID_Formulaire})
 
-    @app.route('/remplir/<Num_Utilisateur>/<ID_Formulaire>', methods=['PUT'])
-    def update_remplir(Num_Utilisateur, ID_Formulaire):
+    @app.route('/remplir/<ID_Formulaire>', methods=['PUT'])
+    @verify_token
+    def update_remplir(ID_Formulaire):
         data = request.get_json()
-        remplir = Remplir.query.get_or_404((Num_Utilisateur, ID_Formulaire))
+        remplir = Remplir.query.get_or_404((request.user_id, ID_Formulaire))
         remplir.Num_Utilisateur = data['Num_Utilisateur']
         remplir.ID_Formulaire = data['ID_Formulaire']
         db.session.commit()
         return jsonify({'message': 'Remplir updated successfully'})
 
-    @app.route('/remplir/<Num_Utilisateur>/<ID_Formulaire>', methods=['DELETE'])
-    def delete_remplir(Num_Utilisateur, ID_Formulaire):
-        remplir = Remplir.query.get_or_404((Num_Utilisateur, ID_Formulaire))
+    @app.route('/remplir/<ID_Formulaire>', methods=['DELETE'])
+    @verify_token
+    def delete_remplir(ID_Formulaire):
+        remplir = Remplir.query.get_or_404((request.user_id, ID_Formulaire))
         db.session.delete(remplir)
         db.session.commit()
         return jsonify({'message': 'Remplir deleted successfully'})

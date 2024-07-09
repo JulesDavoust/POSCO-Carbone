@@ -103,6 +103,20 @@ def register(data, db):
         db.session.add(user)
         db.session.commit()
         print("User registered successfully")
+
+        # Ajouter les entrées dans Répondre pour chaque question
+        print("Adding default responses for the new user")
+        questions = models.Question.query.all()
+        for question in questions:
+            new_reponse = models.Répondre(
+                Num_Utilisateur=user.Num_Utilisateur,
+                ID_Question=question.ID_Question,
+                Faite=False
+            )
+            db.session.add(new_reponse)
+        db.session.commit()
+        print("User registered successfully with default responses")
+        
         return {'message': 'Registered'}, 200
     except Exception as e:
         print("Error during registration: ", str(e))
