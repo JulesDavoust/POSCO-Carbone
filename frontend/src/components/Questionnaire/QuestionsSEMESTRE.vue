@@ -311,6 +311,35 @@ export default {
         console.error('There was an error!', error);
       }
     },
+    async fetchConseils() {
+      const categories = ['transport', 'nourriture', 'énergie'];
+      const headers = AuthService.authHeader();
+
+      try {
+        const allConseils = await Promise.all(
+          categories.map(categorie => 
+            fetch(`/conseils_par_categorie/${categorie}`, {
+              method: 'GET',
+              headers: headers
+            }).then(response => {
+              if (!response.ok) {
+                throw new Error(`An error has occurred: ${response.status}`);
+              }
+              return response.json();
+            })
+          )
+        );
+
+        this.conseils = categories.map((categorie, index) => ({
+          name: categorie,
+          advices: this.getRandomItems(allConseils[index], 3).map(conseil => ({
+            description: conseil.Texte
+          }))
+        }));
+      } catch (error) {
+        console.error('There was an error!', error);
+      }
+    },
     getRandomItems(arr, count) {
       const shuffled = arr.sort(() => 0.5 - Math.random());
       return shuffled.slice(0, count);

@@ -13,9 +13,9 @@
     </div>
     <div v-else>
         <Navbar></Navbar>
-        <h1>Access Denied</h1>
+        <h1>Questionnaire hebdomadaire déjà réalisé</h1>
         <p v-if="error">{{ error }}</p>
-        <p v-else>You do not have access to this questionnaire or the link has expired.</p>
+        <p v-else>Tu n'as pas accès à ce questionnaire ou le lien a expiré.</p>
     </div>
 </template>
 
