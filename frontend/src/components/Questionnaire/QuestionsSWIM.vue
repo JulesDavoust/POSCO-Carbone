@@ -136,7 +136,9 @@ export default {
         }
       ],
       transitions: ['fade', 'slide-right', 'flip-up', 'rotate-right'],
-      randomTransition: 'fade'
+      randomTransition: 'fade',
+      questionsWithResponses: [],
+      bilanData: {}
     };
   },
   props: {
@@ -172,6 +174,186 @@ export default {
         this.randomTransition = this.transitions[Math.floor(Math.random() * this.transitions.length)];
       } else {
         this.finishQuestionnaire();
+      }
+    },
+    async handleBilanCarbone() {
+      const headers = {
+        ...AuthService.authHeader(),
+        'Content-Type': 'application/json'
+      };
+
+      try {
+        // Vérifier l'existence d'un bilan pour l'utilisateur
+        const response = await fetch(`${this.API_URL}bilan_carbone_par_utilisateur`, {
+          method: 'GET',
+          headers: headers
+        });
+
+        if (!response.ok) {
+          throw new Error(`An error has occured: ${response.status}`);
+        }
+
+        const bilansCarbone = await response.json();
+
+        if (bilansCarbone.length > 0) {
+          // Si l'utilisateur a déjà un bilan, le mettre à jour
+          const bilanId = bilansCarbone[0].ID_BilanCarbone; // Prendre le premier bilan trouvé
+          const updateResponse = await fetch(`${this.API_URL}bilans/${bilanId}`, {
+            method: 'PUT',
+            headers: headers,
+            body: JSON.stringify(this.bilanData)
+          });
+
+          if (!updateResponse.ok) {
+            throw new Error(`An error has occured: ${updateResponse.status}`);
+          }
+
+          console.log('BilanCarbone updated successfully');
+          return await updateResponse.json();
+        } else {
+          // Si l'utilisateur n'a pas de bilan, en créer un nouveau
+          const createResponse = await fetch(`${this.API_URL}bilans`, {
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify(this.bilanData)
+          });
+
+          if (!createResponse.ok) {
+            throw new Error(`An error has occured: ${createResponse.status}`);
+          }
+
+          console.log('BilanCarbone created successfully');
+          return await createResponse.json();
+        }
+      } catch (error) {
+        console.error('There was an error!', error);
+      }
+    },
+    async fetchRandomQuestionDetailsAndResponses(userId) {
+      const headers = AuthService.authHeader();
+
+      try {
+        const response = await fetch(`${this.API_URL}avoir`, {
+          method: 'GET',
+          headers: headers
+        });
+
+        if (!response.ok) {
+          throw new Error(`An error has occured: ${response.status}`);
+        }
+
+        const questions = await response.json();
+        const filteredQuestions = questions.filter(q => q.ID_Formulaire === 2);
+        const randomQuestionIds = this.getRandomItems(filteredQuestions, 5).map(q => q.ID_Question);
+
+        const questionDetailsPromises = randomQuestionIds.map(id =>
+          fetch(`${this.API_URL}question_non_repondue`, {
+            method: 'GET',
+            headers: headers
+          }).then(response => {
+            if (!response.ok) {
+              throw new Error(`An error has occured: ${response.status}`);
+            }
+            return response.json();
+          })
+        );
+
+        const questionDetails = await Promise.all(questionDetailsPromises);
+
+        const questionResponsesPromises = questionDetails.map(question =>
+          fetch(`${this.API_URL}reponses_par_question/${question.ID_Question}`, {
+            method: 'GET',
+            headers: headers
+          }).then(response => {
+            if (!response.ok) {
+              throw new Error(`An error has occured: ${response.status}`);
+            }
+            return response.json();
+          })
+        );
+
+        const questionResponses = await Promise.all(questionResponsesPromises);
+
+        const emissionsPromises = questionResponses.flat().map(response =>
+          fetch(`${this.API_URL}emission_co2_par_reponse/${response.ID_Reponse}`, {
+            method: 'GET',
+            headers: headers
+          }).then(response => {
+            if (!response.ok) {
+              throw new Error(`An error has occured: ${response.status}`);
+            }
+            return response.json().then(emission => ({
+              ...response,
+              value: emission.Coefficient_EmissionCO2
+            }));
+          })
+        );
+
+        const emissions = await Promise.all(emissionsPromises);
+
+        this.questionsWithResponses = questionDetails.map((question, index) => ({
+          id: question.ID_Question,
+          question: question.Texte,
+          answers: emissions.filter(emission => emission.ID_Question === question.ID_Question).map(response => ({
+            text: response.Texte_reponse,
+            value: response.value
+          })),
+          type: question.Type,
+          categorie: question.Catégorie
+        }));
+      } catch (error) {
+        console.error('There was an error!', error);
+      }
+    },
+    async fetchConseils() {
+      const categories = ['transport', 'nourriture', 'énergie'];
+      const headers = AuthService.authHeader();
+
+      try {
+        const allConseils = await Promise.all(
+          categories.map(categorie => 
+            fetch(`/conseils_par_categorie/${categorie}`, {
+              method: 'GET',
+              headers: headers
+            }).then(response => {
+              if (!response.ok) {
+                throw new Error(`An error has occurred: ${response.status}`);
+              }
+              return response.json();
+            })
+          )
+        );
+
+        this.conseils = categories.map((categorie, index) => ({
+          name: categorie,
+          advices: this.getRandomItems(allConseils[index], 3).map(conseil => ({
+            description: conseil.Texte
+          }))
+        }));
+      } catch (error) {
+        console.error('There was an error!', error);
+      }
+    },
+    getRandomItems(arr, count) {
+      const shuffled = arr.sort(() => 0.5 - Math.random());
+      return shuffled.slice(0, count);
+    },
+    async fetchBilanCarbone(userId) {
+      const headers = AuthService.authHeader();
+
+      try {
+        const response = await fetch(`${this.API_URL}bilan_carbone_par_utilisateur`, {
+          method: 'GET',
+          headers: headers
+        });
+
+        if (!response.ok) {
+          throw new Error(`An error has occured: ${response.status}`);
+        }
+
+        this.bilanCarbone = await response.json();
+      } catch (error) {
+        console.error('There was an error!', error);
       }
     },
     selectAnswer(value) {
