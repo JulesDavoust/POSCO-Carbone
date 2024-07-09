@@ -68,22 +68,13 @@ def init_user_routes(app, db, mail):
     @verify_token
     def get_utilisateur():
         utilisateur = Utilisateur_EFREI.query.get_or_404(request.user_id)
-    def get_utilisateurs():
-        utilisateurs = Utilisateur_EFREI.query.all()
-        output = [{'Num_Utilisateur': u.Num_Utilisateur, 'Nom': u.Nom, 'Prénom': u.Prénom, 'Email': u.Email, 'MotDePasse_Utilisateur': u.MotDePasse_Utilisateur, 'ID_Promotion': u.ID_Promotion} for u in utilisateurs]
-        return jsonify(output)
-
-    @app.route('/utilisateurs', methods=['GET'])
-    @verify_token
-    def get_utilisateur():
-        utilisateur = Utilisateur_EFREI.query.get_or_404(request.user_id)
         return jsonify({'Num_Utilisateur': utilisateur.Num_Utilisateur, 'Nom': utilisateur.Nom, 'Prénom': utilisateur.Prénom, 'Email': utilisateur.Email, 'MotDePasse_Utilisateur': utilisateur.MotDePasse_Utilisateur, 'ID_Promotion': utilisateur.ID_Promotion})
 
     @app.route('/utilisateurs', methods=['PUT'])
     @verify_token
     def update_utilisateur():
         data = request.get_json()
-        utilisateur = Utilisateur_EFREI.query.get_or_404(id)
+        utilisateur = Utilisateur_EFREI.query.get_or_404(request.user_id)
         utilisateur.Nom = data['Nom']
         utilisateur.Prénom = data['Prénom']
         utilisateur.Email = data['Email']
@@ -177,7 +168,7 @@ def init_user_routes(app, db, mail):
         donner = Donner.query.get_or_404((request.user_id, ID_Conseil))
         return jsonify({'Num_Utilisateur': donner.request.user_id, 'ID_Conseil': donner.ID_Conseil})
 
-    @app.route('/donner/<Num_Utilisateur>/<ID_Conseil>', methods=['PUT'])
+    @app.route('/donner/<ID_Conseil>', methods=['PUT'])
     @verify_token
     def update_donner(ID_Conseil):
         data = request.get_json()
@@ -232,11 +223,3 @@ def init_user_routes(app, db, mail):
         db.session.delete(promotion)
         db.session.commit()
         return jsonify({'message': 'Promotion deleted successfully'})
-    
-
-
-
-
-
-    
-

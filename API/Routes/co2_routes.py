@@ -102,12 +102,15 @@ def init_co2_routes(app, db):
     
     # Fonctions CRUD pour BilanCarbone
     @app.route('/bilans', methods=['POST'])
+    @verify_token
     def create_bilan():
+    
         data = request.get_json()
         new_bilan = BilanCarbone(
             BilanTotal=data['BilanTotal'],
             BilanCatégorie=data['BilanCatégorie'],
             Date_BilanCarbone=data['Date_BilanCarbone'],
+            Num_Utilisateur = request.user_id  # Including Num_Utilisateur as a foreign key
         )
         db.session.add(new_bilan)
         db.session.commit()
@@ -142,9 +145,10 @@ def init_co2_routes(app, db):
         db.session.commit()
         return jsonify({'message': 'BilanCarbone deleted successfully'})
     
-    @app.route('/bilan_carbone_par_utilisateur/<int:num_utilisateur>', methods=['GET'])
-    def get_bilan_carbone_par_utilisateur(num_utilisateur):
-        bilans_carbone = BilanCarbone.query.filter_by(Num_Utilisateur=num_utilisateur).all()
+    @app.route('/bilan_carbone_par_utilisateur', methods=['GET'])
+    @verify_token
+    def get_bilan_carbone_par_utilisateur():
+        bilans_carbone = BilanCarbone.query.filter_by(Num_Utilisateur=request.user_id).all()
         return jsonify([bilan.to_dict() for bilan in bilans_carbone])
 
     def bilan_to_dict(bilan):
@@ -156,9 +160,4 @@ def init_co2_routes(app, db):
             'Num_Utilisateur': bilan.Num_Utilisateur
         }
     BilanCarbone.to_dict = bilan_to_dict
-
-
-    
-
-
 

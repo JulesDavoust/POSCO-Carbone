@@ -190,12 +190,12 @@ def init_formulaire_routes(app, db):
         db.session.commit()
         return jsonify({'message': 'Reponse deleted successfully'})
     
-    # get les reponse d'un utilisateur
-    @app.route('/reponses/user/<id>', methods=['GET'])
-    def get_reponse_user(id):
-        reponses = Reponse.query.filter_by(ID_User=id).all()
-        output = [{'ID_Reponse': r.ID_Reponse, 'Texte_reponse': r.Texte_reponse, 'Type': r.Type, 'Catégorie': r.Catégorie, 'ID_Question': r.ID_Question, 'ID_EmissionCO2': r.ID_EmissionCO2} for r in reponses]
-        return jsonify(output)
+    # # get les reponse d'un utilisateur
+    # @app.route('/reponses/user/<id>', methods=['GET'])
+    # def get_reponse_user(id):
+    #     reponses = Reponse.query.filter_by(ID_User=id).all()
+    #     output = [{'ID_Reponse': r.ID_Reponse, 'Texte_reponse': r.Texte_reponse, 'Type': r.Type, 'Catégorie': r.Catégorie, 'ID_Question': r.ID_Question, 'ID_EmissionCO2': r.ID_EmissionCO2} for r in reponses]
+    #     return jsonify(output)
     
     @app.route('/reponses_par_question/<int:id_question>', methods=['GET'])
     def get_reponses_par_question(id_question):
@@ -211,37 +211,18 @@ def init_formulaire_routes(app, db):
             'ID_Question': reponse.ID_Question,
             'ID_EmissionCO2': reponse.ID_EmissionCO2
         }
-    
-    
-    @app.route('/repondre', methods=['POST'])
-    def create_repondre():
-        if not request.json or not 'Num_Utilisateur' in request.json or not 'ID_Question' in request.json:
-            abort(400)
-        
-        new_reponse = Répondre(
-            Num_Utilisateur=request.json['Num_Utilisateur'],
-            ID_Question=request.json['ID_Question'],
-            Faite=request.json.get('Faite', False)
-        )
-        db.session.add(new_reponse)
-        db.session.commit()
-        
-        return jsonify({
-            'Num_Utilisateur': new_reponse.Num_Utilisateur,
-            'ID_Question': new_reponse.ID_Question,
-            'Faite': new_reponse.Faite
-        }), 201
+
 
     # Read a specific response
     @app.route('/repondre/<int:id_question>', methods=['GET'])
     @verify_token
-    def get_repondre(num_utilisateur, id_question):
-        reponse = Répondre.query.get((num_utilisateur, id_question))
+    def get_repondre(id_question):
+        reponse = Répondre.query.get((request.user_id, id_question))
         if not reponse:
             abort(404)
         
         return jsonify({
-            'Num_Utilisateur': reponse.Num_Utilisateur,
+            'Num_Utilisateur': reponse.request.user_id,
             'ID_Question': reponse.ID_Question,
             'Faite': reponse.Faite
         })
@@ -249,8 +230,8 @@ def init_formulaire_routes(app, db):
     # Update a specific response
     @app.route('/repondre/<int:id_question>', methods=['PUT'])
     @verify_token
-    def update_repondre(num_utilisateur, id_question):
-        reponse = Répondre.query.get((num_utilisateur, id_question))
+    def update_repondre(id_question):
+        reponse = Répondre.query.get((request.user_id, id_question))
         if not reponse:
             abort(404)
         
@@ -261,7 +242,7 @@ def init_formulaire_routes(app, db):
         db.session.commit()
         
         return jsonify({
-            'Num_Utilisateur': reponse.Num_Utilisateur,
+            'Num_Utilisateur': reponse.request.user_id,
             'ID_Question': reponse.ID_Question,
             'Faite': reponse.Faite
         })
@@ -269,8 +250,8 @@ def init_formulaire_routes(app, db):
     # Delete a specific response
     @app.route('/repondre/<int:id_question>', methods=['DELETE'])
     @verify_token
-    def delete_repondre(num_utilisateur, id_question):
-        reponse = Répondre.query.get((num_utilisateur, id_question))
+    def delete_repondre(id_question):
+        reponse = Répondre.query.get((request.user_id, id_question))
         if not reponse:
             abort(404)
         
@@ -330,15 +311,7 @@ def init_formulaire_routes(app, db):
         remplir = Remplir.query.get_or_404((request.user_id, ID_Formulaire))
         return jsonify({'Num_Utilisateur': remplir.request.user_id, 'ID_Formulaire': remplir.ID_Formulaire})
 
-    @app.route('/remplir/<ID_Formulaire>', methods=['PUT'])
-    @verify_token
-    def update_remplir(ID_Formulaire):
-        data = request.get_json()
-        remplir = Remplir.query.get_or_404((request.user_id, ID_Formulaire))
-        remplir.Num_Utilisateur = data['Num_Utilisateur']
-        remplir.ID_Formulaire = data['ID_Formulaire']
-        db.session.commit()
-        return jsonify({'message': 'Remplir updated successfully'})
+
 
     @app.route('/remplir/<ID_Formulaire>', methods=['DELETE'])
     @verify_token
@@ -347,10 +320,4 @@ def init_formulaire_routes(app, db):
         db.session.delete(remplir)
         db.session.commit()
         return jsonify({'message': 'Remplir deleted successfully'})
-
-
-
-
-
-
 
