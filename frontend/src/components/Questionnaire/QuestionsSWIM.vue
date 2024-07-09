@@ -175,11 +175,64 @@ export default {
         this.finishQuestionnaire();
       }
     },
+    async handleBilanCarbone() {
+      const headers = {
+        ...AuthService.authHeader(),
+        'Content-Type': 'application/json'
+      };
+
+      try {
+        // Vérifier l'existence d'un bilan pour l'utilisateur
+        const response = await fetch(`${this.API_URL}bilan_carbone_par_utilisateur`, {
+          method: 'GET',
+          headers: headers
+        });
+
+        if (!response.ok) {
+          throw new Error(`An error has occured: ${response.status}`);
+        }
+
+        const bilansCarbone = await response.json();
+
+        if (bilansCarbone.length > 0) {
+          // Si l'utilisateur a déjà un bilan, le mettre à jour
+          const bilanId = bilansCarbone[0].ID_BilanCarbone; // Prendre le premier bilan trouvé
+          const updateResponse = await fetch(`${this.API_URL}bilans/${bilanId}`, {
+            method: 'PUT',
+            headers: headers,
+            body: JSON.stringify(this.bilanData)
+          });
+
+          if (!updateResponse.ok) {
+            throw new Error(`An error has occured: ${updateResponse.status}`);
+          }
+
+          console.log('BilanCarbone updated successfully');
+          return await updateResponse.json();
+        } else {
+          // Si l'utilisateur n'a pas de bilan, en créer un nouveau
+          const createResponse = await fetch(`${this.API_URL}bilans`, {
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify(this.bilanData)
+          });
+
+          if (!createResponse.ok) {
+            throw new Error(`An error has occured: ${createResponse.status}`);
+          }
+
+          console.log('BilanCarbone created successfully');
+          return await createResponse.json();
+        }
+      } catch (error) {
+        console.error('There was an error!', error);
+      }
+    },
     async fetchRandomQuestionDetailsAndResponses(userId) {
       const headers = AuthService.authHeader();
 
       try {
-        const response = await fetch('/avoir', {
+        const response = await fetch(`${this.API_URL}avoir`, {
           method: 'GET',
           headers: headers
         });
@@ -193,7 +246,7 @@ export default {
         const randomQuestionIds = this.getRandomItems(filteredQuestions, 5).map(q => q.ID_Question);
 
         const questionDetailsPromises = randomQuestionIds.map(id =>
-          fetch(`/question_non_repondue/${userId}`, {
+          fetch(`${this.API_URL}question_non_repondue`, {
             method: 'GET',
             headers: headers
           }).then(response => {
@@ -207,7 +260,7 @@ export default {
         const questionDetails = await Promise.all(questionDetailsPromises);
 
         const questionResponsesPromises = questionDetails.map(question =>
-          fetch(`/reponses_par_question/${question.ID_Question}`, {
+          fetch(`${this.API_URL}reponses_par_question/${question.ID_Question}`, {
             method: 'GET',
             headers: headers
           }).then(response => {
@@ -221,7 +274,7 @@ export default {
         const questionResponses = await Promise.all(questionResponsesPromises);
 
         const emissionsPromises = questionResponses.flat().map(response =>
-          fetch(`/emission_co2_par_reponse/${response.ID_Reponse}`, {
+          fetch(`${this.API_URL}emission_co2_par_reponse/${response.ID_Reponse}`, {
             method: 'GET',
             headers: headers
           }).then(response => {
@@ -259,7 +312,7 @@ export default {
       const headers = AuthService.authHeader();
 
       try {
-        const response = await fetch(`/bilan_carbone_par_utilisateur`, {
+        const response = await fetch(`${this.API_URL}bilan_carbone_par_utilisateur`, {
           method: 'GET',
           headers: headers
         });
