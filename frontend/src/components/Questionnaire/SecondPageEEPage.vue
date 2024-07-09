@@ -20,7 +20,7 @@
       </div>
       <div class="row mt-4 justify-content-center align-items-center">
         <div class="col-12 col-md-8 d-flex justify-content-center">
-          <button type="button" class="btn text-btn" @click="PERSO()">Ma conso personnel</button>
+          <button type="button" class="btn text-btn" @click="PERSO()">Activité EFREI</button>
         </div>
       </div>
     </div>
