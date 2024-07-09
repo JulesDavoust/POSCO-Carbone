@@ -52,7 +52,7 @@ def init_user_routes(app, db, mail):
     @app.route('/utilisateurs', methods=['POST'])
     def create_utilisateur():
         data = request.get_json()
-        new_utilisateur = UtilisateurEFREI(
+        new_utilisateur = Utilisateur_EFREI(
             Nom=data['Nom'],
             Prénom=data['Prénom'],
             Email=data['Email'],
@@ -63,23 +63,27 @@ def init_user_routes(app, db, mail):
         db.session.commit()
         return jsonify({'message': 'Utilisateur_EFREI created successfully'}), 201
 
+
     @app.route('/utilisateurs', methods=['GET'])
+    @verify_token
+    def get_utilisateur():
+        utilisateur = Utilisateur_EFREI.query.get_or_404(request.user_id)
     def get_utilisateurs():
-        utilisateurs = UtilisateurEFREI.query.all()
+        utilisateurs = Utilisateur_EFREI.query.all()
         output = [{'Num_Utilisateur': u.Num_Utilisateur, 'Nom': u.Nom, 'Prénom': u.Prénom, 'Email': u.Email, 'MotDePasse_Utilisateur': u.MotDePasse_Utilisateur, 'ID_Promotion': u.ID_Promotion} for u in utilisateurs]
         return jsonify(output)
 
     @app.route('/utilisateurs', methods=['GET'])
     @verify_token
     def get_utilisateur():
-        utilisateur = UtilisateurEFREI.query.get_or_404(request.user_id)
+        utilisateur = Utilisateur_EFREI.query.get_or_404(request.user_id)
         return jsonify({'Num_Utilisateur': utilisateur.Num_Utilisateur, 'Nom': utilisateur.Nom, 'Prénom': utilisateur.Prénom, 'Email': utilisateur.Email, 'MotDePasse_Utilisateur': utilisateur.MotDePasse_Utilisateur, 'ID_Promotion': utilisateur.ID_Promotion})
 
     @app.route('/utilisateurs', methods=['PUT'])
     @verify_token
     def update_utilisateur():
         data = request.get_json()
-        utilisateur = UtilisateurEFREI.query.get_or_404(request.user_id)
+        utilisateur = Utilisateur_EFREI.query.get_or_404(id)
         utilisateur.Nom = data['Nom']
         utilisateur.Prénom = data['Prénom']
         utilisateur.Email = data['Email']
@@ -91,7 +95,7 @@ def init_user_routes(app, db, mail):
     @app.route('/utilisateurs', methods=['DELETE'])
     @verify_token
     def delete_utilisateur():
-        utilisateur = UtilisateurEFREI.query.get_or_404(request.user_id)
+        utilisateur = Utilisateur_EFREI.query.get_or_404(request.user_id)
         db.session.delete(utilisateur)
         db.session.commit()
         return jsonify({'message': 'Utilisateur_EFREI deleted successfully'})
