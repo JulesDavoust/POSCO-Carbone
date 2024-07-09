@@ -22,11 +22,11 @@
               <div class="card-body">
                 <h5 class="card-title">{{ filteredQuestions[currentQuestion].question }}</h5>
 
-                <div v-if="filteredQuestions[currentQuestion].type === 'text'" class="mt-4">
+                <div v-if="filteredQuestions[currentQuestion].type === 'Texte'" class="mt-4">
                   <input type="number" class="form-control" placeholder="Votre réponse" v-model="textReponse" min="0">
                 </div>
 
-                <div v-if="filteredQuestions[currentQuestion].type === 'multiple'"
+                <div v-if="filteredQuestions[currentQuestion].type === 'Multiple'"
                   class="d-flex flex-wrap justify-content-center mt-4">
                   <button v-for="(answer, index) in filteredQuestions[currentQuestion].answers" :key="index"
                     @click="selectAnswer(answer.value)"
@@ -35,8 +35,7 @@
                   </button>
                 </div>
 
-                <button class="btn btn-primary mt-3" @click="nextQuestion">{{ currentQuestion < filteredQuestions.length
-      - 1 ? 'Question suivante' : 'Terminer le questionnaire' }}</button>
+                <button class="btn btn-primary mt-3" @click="nextQuestion()">{{ currentQuestion < filteredQuestions.length - 1 ? 'Question suivante' : 'Terminer le questionnaire' }}</button>
               </div>
             </div>
           </transition>
@@ -71,7 +70,7 @@ export default {
       textReponse: '',
       multipleReponse: '',
       indexpage: 'secondpage',
-      saveEmission: [{ name: 'transport', amount: 0, color: '#aed6f1' }, { name: 'nourriture', amount: 0, color: '#f5b7b1' }, { name: 'energie', amount: 0, color: '#f9e79f' }],
+      saveEmission: [{ name: 'Transport', amount: 0, color: '#aed6f1' }, { name: 'Nourriture', amount: 0, color: '#f5b7b1' }, { name: 'Energie', amount: 0, color: '#f9e79f' }],
       questions: [
         {
           id: 0,
@@ -144,7 +143,19 @@ export default {
         }
       ],
       transitions: ['fade', 'slide-right', 'flip-up', 'rotate-right'],
-      randomTransition: 'fade'
+      randomTransition: 'fade',
+      questionsWithResponses: [],
+      bilanData: {
+        BilanTotal: 0,
+        BilanCatégorie: 1,
+        Date_BilanCarbone: new Date().toISOString(),
+        ID_Formulaire: 1
+      },
+      conseils: {
+        transport: [],
+        nourriture: [],
+        énergie: []
+      }
     };
   },
   props: {
@@ -152,21 +163,25 @@ export default {
   },
   computed: {
     filteredQuestions() {
-      return this.questions.filter(question => question.faite);
+      this.questionsWithResponses.filter(question => question.faite);
+      console.log(this.questionsWithResponses)
+      return this.questionsWithResponses
     }
   },
   methods: {
     nextQuestion() {
-      if (this.filteredQuestions[this.currentQuestion].type === 'text') {
+      if (this.filteredQuestions[this.currentQuestion].type === 'Texte') {
         if (this.textReponse) {
+          console.log(this.textReponse)
           this.calculBilanCO2();
           this.textReponse = '';
         } else {
           alert("Veuillez entrer une réponse.");
           return;
         }
-      } else if (this.filteredQuestions[this.currentQuestion].type === 'multiple') {
+      } else if (this.filteredQuestions[this.currentQuestion].type === 'Multiple') {
         if (this.multipleReponse) {
+          console.log("mult: ",this.multipleReponse)
           this.calculBilanCO2();
           this.multipleReponse = '';
         } else {
@@ -182,21 +197,26 @@ export default {
         this.finishQuestionnaire();
       }
     },
+    formatDateToSQL(date) {
+      return date.toISOString().split('T')[0]; // Retourne la date au format YYYY-MM-DD
+    },
     async handleBilanCarbone() {
       const headers = {
         ...AuthService.authHeader(),
         'Content-Type': 'application/json'
       };
 
+      // Formater la date
+      this.bilanData.Date_BilanCarbone = this.formatDateToSQL(new Date());
+      this.bilanData.BilanTotal = this.bilanCO2
       try {
-        // Vérifier l'existence d'un bilan pour l'utilisateur
         const response = await fetch(`${this.API_URL}bilan_carbone_par_utilisateur`, {
           method: 'GET',
           headers: headers
         });
 
         if (!response.ok) {
-          throw new Error(`An error has occured: ${response.status}`);
+          throw new Error(`An error has occurred: ${response.status}`);
         }
 
         const bilansCarbone = await response.json();
@@ -211,11 +231,11 @@ export default {
           });
 
           if (!updateResponse.ok) {
-            throw new Error(`An error has occured: ${updateResponse.status}`);
+            throw new Error(`An error has occurred: ${updateResponse.status}`);
           }
 
-          console.log('BilanCarbone updated successfully');
-          return await updateResponse.json();
+          this.message = 'BilanCarbone updated successfully';
+          console.log(await updateResponse.json());
         } else {
           // Si l'utilisateur n'a pas de bilan, en créer un nouveau
           const createResponse = await fetch(`${this.API_URL}bilans`, {
@@ -225,13 +245,14 @@ export default {
           });
 
           if (!createResponse.ok) {
-            throw new Error(`An error has occured: ${createResponse.status}`);
+            throw new Error(`An error has occurred: ${createResponse.status}`);
           }
 
-          console.log('BilanCarbone created successfully');
-          return await createResponse.json();
+          this.message = 'BilanCarbone created successfully';
+          console.log(await createResponse.json());
         }
       } catch (error) {
+        this.message = 'There was an error!';
         console.error('There was an error!', error);
       }
     },
@@ -239,103 +260,97 @@ export default {
       const headers = AuthService.authHeader();
 
       try {
+        // Étape 1 : Récupérer toutes les questions associées au formulaire ID 2
         const response = await fetch(`${this.API_URL}avoir`, {
           method: 'GET',
           headers: headers
         });
 
         if (!response.ok) {
-          throw new Error(`An error has occured: ${response.status}`);
+          throw new Error(`An error has occurred: ${response.status}`);
         }
 
         const questions = await response.json();
+        console.log(questions);
         const filteredQuestions = questions.filter(q => q.ID_Formulaire === 1);
-        const randomQuestionIds = this.getRandomItems(filteredQuestions, 5).map(q => q.ID_Question);
+        console.log(filteredQuestions);
 
-        const questionDetailsPromises = randomQuestionIds.map(id =>
-          fetch(`${this.API_URL}question_non_repondue`, {
+        // Étape 2 : Récupérer toutes les questions non répondues
+        const nonReponduesResponse = await fetch(`${this.API_URL}question_non_repondue`, {
+          method: 'GET',
+          headers: headers
+        });
+
+        if (!nonReponduesResponse.ok) {
+          throw new Error(`An error has occurred: ${nonReponduesResponse.status}`);
+        }
+
+        const nonRepondues = await nonReponduesResponse.json();
+        console.log(nonRepondues);
+
+        // Filtrer les questions non répondues associées au formulaire ID 2
+        const filteredNonRepondues = nonRepondues.filter(q => filteredQuestions.some(fq => fq.ID_Question === q.ID_Question));
+        console.log(filteredNonRepondues);
+
+        // Étape 3 : Sélectionner 5 questions aléatoires parmi les questions non répondues filtrées
+        const randomQuestions = this.getRandomItems(filteredNonRepondues, 5);
+        const randomQuestionIds = randomQuestions.map(q => q.ID_Question);
+        console.log(randomQuestionIds);
+
+        // Étape 4 : Récupérer les réponses pour chaque question
+        const questionResponsesPromises = randomQuestionIds.map(id =>
+          fetch(`${this.API_URL}reponses_par_question/${id}`, {
             method: 'GET',
             headers: headers
           }).then(response => {
             if (!response.ok) {
-              throw new Error(`An error has occured: ${response.status}`);
-            }
-            return response.json();
-          })
-        );
-
-        const questionDetails = await Promise.all(questionDetailsPromises);
-
-        const questionResponsesPromises = questionDetails.map(question =>
-          fetch(`${this.API_URL}reponses_par_question/${question.ID_Question}`, {
-            method: 'GET',
-            headers: headers
-          }).then(response => {
-            if (!response.ok) {
-              throw new Error(`An error has occured: ${response.status}`);
+              throw new Error(`An error has occurred: ${response.status}`);
             }
             return response.json();
           })
         );
 
         const questionResponses = await Promise.all(questionResponsesPromises);
-
+        console.log(questionResponses)
+        // Étape 5 : Récupérer l'émission CO2 pour chaque réponse
         const emissionsPromises = questionResponses.flat().map(response =>
           fetch(`${this.API_URL}emission_co2_par_reponse/${response.ID_Reponse}`, {
             method: 'GET',
             headers: headers
           }).then(response => {
             if (!response.ok) {
-              throw new Error(`An error has occured: ${response.status}`);
+              throw new Error(`An error has occurred: ${response.status}`);
             }
             return response.json().then(emission => ({
               ...response,
-              value: emission.Coefficient_EmissionCO2
+              Coefficient_EmissionCO2: emission.Coefficient_EmissionCO2,
+              ID_EmissionCO2: emission.ID_EmissionCO2
             }));
           })
         );
 
         const emissions = await Promise.all(emissionsPromises);
+        console.log(emissions);
 
-        this.questionsWithResponses = questionDetails.map((question, index) => ({
+        // Étape 6 : Combiner les détails des questions avec leurs réponses et les émissions de CO2
+        this.questionsWithResponses = randomQuestions.map(question => ({
           id: question.ID_Question,
           question: question.Texte,
-          answers: emissions.filter(emission => emission.ID_Question === question.ID_Question).map(response => ({
-            text: response.Texte_reponse,
-            value: response.value
-          })),
+          answers: questionResponses
+            .flat()
+            .filter(response => response.ID_Question === question.ID_Question)
+            .map(response => {
+              const emission = emissions.find(e => e.ID_EmissionCO2 === response.ID_EmissionCO2);
+              console.log('emission found:', emission);
+              return {
+                text: response.Texte_reponse,
+                value: emission ? emission.Coefficient_EmissionCO2 : null
+              };
+            }),
           type: question.Type,
           categorie: question.Catégorie
         }));
-      } catch (error) {
-        console.error('There was an error!', error);
-      }
-    },
-    async fetchConseils() {
-      const categories = ['transport', 'nourriture', 'énergie'];
-      const headers = AuthService.authHeader();
-
-      try {
-        const allConseils = await Promise.all(
-          categories.map(categorie => 
-            fetch(`/conseils_par_categorie/${categorie}`, {
-              method: 'GET',
-              headers: headers
-            }).then(response => {
-              if (!response.ok) {
-                throw new Error(`An error has occurred: ${response.status}`);
-              }
-              return response.json();
-            })
-          )
-        );
-
-        this.conseils = categories.map((categorie, index) => ({
-          name: categorie,
-          advices: this.getRandomItems(allConseils[index], 3).map(conseil => ({
-            description: conseil.Texte
-          }))
-        }));
+        console.log(this.questionsWithResponses);
       } catch (error) {
         console.error('There was an error!', error);
       }
@@ -344,54 +359,46 @@ export default {
       const shuffled = arr.sort(() => 0.5 - Math.random());
       return shuffled.slice(0, count);
     },
-    async fetchBilanCarbone(userId) {
-      const headers = AuthService.authHeader();
+    
 
-      try {
-        const response = await fetch(`${this.API_URL}bilan_carbone_par_utilisateur`, {
-          method: 'GET',
-          headers: headers
-        });
-
-        if (!response.ok) {
-          throw new Error(`An error has occured: ${response.status}`);
-        }
-
-        this.bilanCarbone = await response.json();
-      } catch (error) {
-        console.error('There was an error!', error);
-      }
-    },
     selectAnswer(value) {
       this.multipleReponse = value;
     },
     calculBilanCO2() {
       let question = this.filteredQuestions[this.currentQuestion];
-      let value = question.type === 'text' ? this.textReponse : this.multipleReponse;
-      this.bilanCO2 += (value / 10);
-
+      console.log(question)
+      let value = question.type === 'Texte' ? parseFloat(this.textReponse) : parseFloat(this.multipleReponse);
+      console.log(value)
+      this.bilanCO2 += (value);
+      console.log(this.bilanCO2)
       switch (question.categorie) {
-        case 'transport':
-          this.transportCO2 += value / 10;
+        case 'Transport':
+          console.log(question.categorie)
+          this.transportCO2 += value;
           this.saveEmission[0].amount = this.transportCO2
+          console.log(this.saveEmission)
           break;
-        case 'nourriture':
-          this.nourritureCO2 += value / 10;
+        case 'Nourriture':
+          console.log(question.categorie)
+          this.nourritureCO2 += value;
           this.saveEmission[1].amount = this.nourritureCO2
+          console.log(this.saveEmission)
           break;
-        case 'energie':
-          this.energieCO2 += value / 10;
+        case 'Energie':
+          console.log(question.categorie)
+          this.energieCO2 += value;
           this.saveEmission[2].amount = this.energieCO2
+          console.log(this.saveEmission)
           break;
       }
     },
     getCategoryClass(categorie) {
       switch (categorie) {
-        case 'transport':
+        case 'Transport':
           return 'transport-category';
-        case 'nourriture':
+        case 'Nourriture':
           return 'nourriture-category';
-        case 'energie':
+        case 'Energie':
           return 'energie-category';
         default:
           return '';
@@ -399,11 +406,11 @@ export default {
     },
     getButtonClass(categorie) {
       switch (categorie) {
-        case 'transport':
+        case 'Transport':
           return 'btn-transport';
-        case 'nourriture':
+        case 'Nourriture':
           return 'btn-nourriture';
-        case 'energie':
+        case 'Energie':
           return 'btn-energie';
         default:
           return '';
@@ -413,9 +420,11 @@ export default {
     //   this.indexpage = 'bilanpage';
     // },
     async finishQuestionnaire() {
+      console.log(this.bilanCO2)
+      await this.handleBilanCarbone()
       this.indexpage = 'bilanpage';
       try {
-        const response = await API_URL(`${this.API_URL}questionnaire/complete`, {
+        const response = await fetch(`${this.API_URL}questionnaire/complete`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -434,7 +443,10 @@ export default {
         console.error('An error occurred while marking the questionnaire as completed:', error);
       }
     }
-  }
+  },
+  created() {
+    this.fetchRandomQuestionDetailsAndResponses();
+  },
 };
 </script>
 

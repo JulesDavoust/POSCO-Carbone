@@ -273,15 +273,16 @@ def init_formulaire_routes(app, db):
             (Question.ID_Question == Répondre.ID_Question) & 
             (Répondre.Num_Utilisateur == num_utilisateur) & 
             (Répondre.Faite == False)
-        ).first()
-
+        ).all()
+        print(question_non_repondue)
         if question_non_repondue:
-            return jsonify({
-                'ID_Question': question_non_repondue.ID_Question,
-                'Texte': question_non_repondue.Texte,
-                'Type': question_non_repondue.Type,
-                'Catégorie': question_non_repondue.Catégorie
-            })
+            result = [{
+                'ID_Question': question.ID_Question,
+                'Texte': question.Texte,
+                'Type': question.Type,
+                'Catégorie': question.Catégorie
+            } for question in question_non_repondue]
+            return jsonify(result)
         else:
             return jsonify({'message': 'Toutes les questions ont été répondues par cet utilisateur.'}), 404
 

@@ -23,6 +23,7 @@
           <button type="button" class="btn text-btn" @click="PERSO()">Activité EFREI</button>
         </div>
       </div>
+      
     </div>
     <suscribeQuestionnaireSWIM v-if="index === 'SuscribequestionnaireSWIM'" />
     <suscribeQuestionnaireSEM v-if="index === 'SuscribequestionnaireSEM'" />
@@ -120,4 +121,6 @@ export default {
     height: 40px;
   }
 }
+
+
 </style>

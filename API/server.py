@@ -30,6 +30,7 @@ CORS(app)
 # Configurer la base de données MySQL
 app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql+pymysql://{Username}:{Password}@localhost/{BDD_Name}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SECRET_KEY'] = "my-secret-key"
 # app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 app.config['MAIL_SERVER'] = 'smtp.office365.com'

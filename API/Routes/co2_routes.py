@@ -50,6 +50,7 @@ def init_co2_routes(app, db):
         reponse = Reponse.query.get(id_reponse)
         if reponse and reponse.ID_EmissionCO2:
             emission_co2 = EmissionCO2.query.get(reponse.ID_EmissionCO2)
+            print(emission_co2)
             return jsonify(emission_co2_to_dict(emission_co2))
         else:
             return jsonify({'message': 'Emission CO2 non trouvée pour cette réponse.'}), 404
