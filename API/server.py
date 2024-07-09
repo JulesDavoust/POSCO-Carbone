@@ -28,7 +28,7 @@ app = Flask(__name__)
 CORS(app)
 
 # Configurer la base de données MySQL
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URI', 'mysql+mysqlconnector://root:root@localhost/posco')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URI', 'mysql+mysqlconnector://{Username}:{Password}@localhost/{BDD_Name}')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 # app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 

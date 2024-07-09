@@ -320,4 +320,3 @@ def init_formulaire_routes(app, db):
         db.session.delete(remplir)
         db.session.commit()
         return jsonify({'message': 'Remplir deleted successfully'})
-

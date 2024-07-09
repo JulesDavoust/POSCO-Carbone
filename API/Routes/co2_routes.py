@@ -160,4 +160,3 @@ def init_co2_routes(app, db):
             'Num_Utilisateur': bilan.Num_Utilisateur
         }
     BilanCarbone.to_dict = bilan_to_dict
-

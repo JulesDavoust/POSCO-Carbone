@@ -48,7 +48,6 @@ def init_user_routes(app, db, mail):
         return check_and_update_sem_notification(request.user_id, db)
         
         
-    # Fonctions CRUD pour Utilisateur_EFREI
     @app.route('/utilisateurs', methods=['POST'])
     def create_utilisateur():
         data = request.get_json()
@@ -63,34 +62,18 @@ def init_user_routes(app, db, mail):
         db.session.commit()
         return jsonify({'message': 'Utilisateur_EFREI created successfully'}), 201
 
-<<<<<<< Updated upstream
 
     @app.route('/utilisateurs', methods=['GET'])
     @verify_token
     def get_utilisateur():
         utilisateur = Utilisateur_EFREI.query.get_or_404(request.user_id)
-=======
-    @app.route('/utilisateurs', methods=['GET'])
-    def get_utilisateurs():
-        utilisateurs = Utilisateur_EFREI.query.all()
-        output = [{'Num_Utilisateur': u.Num_Utilisateur, 'Nom': u.Nom, 'Prénom': u.Prénom, 'Email': u.Email, 'MotDePasse_Utilisateur': u.MotDePasse_Utilisateur, 'ID_Promotion': u.ID_Promotion} for u in utilisateurs]
-        return jsonify(output)
-
-    @app.route('/utilisateurs/<id>', methods=['GET'])
-    def get_utilisateur(id):
-        utilisateur = Utilisateur_EFREI.query.get_or_404(id)
->>>>>>> Stashed changes
         return jsonify({'Num_Utilisateur': utilisateur.Num_Utilisateur, 'Nom': utilisateur.Nom, 'Prénom': utilisateur.Prénom, 'Email': utilisateur.Email, 'MotDePasse_Utilisateur': utilisateur.MotDePasse_Utilisateur, 'ID_Promotion': utilisateur.ID_Promotion})
 
     @app.route('/utilisateurs', methods=['PUT'])
     @verify_token
     def update_utilisateur():
         data = request.get_json()
-<<<<<<< Updated upstream
         utilisateur = Utilisateur_EFREI.query.get_or_404(request.user_id)
-=======
-        utilisateur = Utilisateur_EFREI.query.get_or_404(id)
->>>>>>> Stashed changes
         utilisateur.Nom = data['Nom']
         utilisateur.Prénom = data['Prénom']
         utilisateur.Email = data['Email']
@@ -99,16 +82,10 @@ def init_user_routes(app, db, mail):
         db.session.commit()
         return jsonify({'message': 'Utilisateur_EFREI updated successfully'})
 
-<<<<<<< Updated upstream
     @app.route('/utilisateurs', methods=['DELETE'])
     @verify_token
     def delete_utilisateur():
         utilisateur = Utilisateur_EFREI.query.get_or_404(request.user_id)
-=======
-    @app.route('/utilisateurs/<id>', methods=['DELETE'])
-    def delete_utilisateur(id):
-        utilisateur = Utilisateur_EFREI.query.get_or_404(id)
->>>>>>> Stashed changes
         db.session.delete(utilisateur)
         db.session.commit()
         return jsonify({'message': 'Utilisateur_EFREI deleted successfully'})
