@@ -13,3 +13,5 @@ def init_system_routes(app):
             return jsonify(hello)
         except Exception as e:
             return jsonify({"error": str(e)}), 500
+        
+    

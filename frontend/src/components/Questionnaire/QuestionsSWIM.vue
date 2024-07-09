@@ -301,6 +301,7 @@ export default {
           type: question.Type,
           categorie: question.Catégorie
         }));
+        console.log(this.questionsWithResponses)
       } catch (error) {
         console.error('There was an error!', error);
       }

@@ -17,7 +17,7 @@
                             <div class="NC" @click="switchPage(3)"><a class="nav-link">Nos Conseils</a></div>
                         </li>
                         <li class="nav-item">
-                            <div class="FAQ" @click="switchPage(4)"><a class="nav-link">FAQ</a></div>
+                            <div class="FAQ" @click="fetchRandomQuestionDetailsAndResponses()"><a class="nav-link">FAQ</a></div>
                         </li>
                     </ul>
                     <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-center">
@@ -51,7 +51,8 @@ data(){
     return{
         modal: true,
         dev: true,
-        drop: false
+        drop: false,
+        API_URL: "http://localhost:5000/"
     }
 },
 methods:{
@@ -105,7 +106,88 @@ methods:{
             });
         }
         
-    }
+    },
+    async fetchRandomQuestionDetailsAndResponses(userId) {
+      const headers = AuthService.authHeader();
+
+      try {
+        const response = await fetch(`${this.API_URL}avoir`, {
+          method: 'GET',
+          headers: headers
+        });
+
+        if (!response.ok) {
+          throw new Error(`An error has occured: ${response.status}`);
+        }
+
+        const questions = await response.json();
+        const filteredQuestions = questions.filter(q => q.ID_Formulaire === 2);
+        const randomQuestionIds = this.getRandomItems(filteredQuestions, 5).map(q => q.ID_Question);
+
+        const questionDetailsPromises = randomQuestionIds.map(id =>
+          fetch(`${this.API_URL}question_non_repondue`, {
+            method: 'GET',
+            headers: headers
+          }).then(response => {
+            if (!response.ok) {
+              throw new Error(`An error has occured: ${response.status}`);
+            }
+            return response.json();
+          })
+        );
+
+        const questionDetails = await Promise.all(questionDetailsPromises);
+
+        const questionResponsesPromises = questionDetails.map(question =>
+          fetch(`${this.API_URL}reponses_par_question/${question.ID_Question}`, {
+            method: 'GET',
+            headers: headers
+          }).then(response => {
+            if (!response.ok) {
+              throw new Error(`An error has occured: ${response.status}`);
+            }
+            return response.json();
+          })
+        );
+
+        const questionResponses = await Promise.all(questionResponsesPromises);
+
+        const emissionsPromises = questionResponses.flat().map(response =>
+          fetch(`${this.API_URL}emission_co2_par_reponse/${response.ID_Reponse}`, {
+            method: 'GET',
+            headers: headers
+          }).then(response => {
+            if (!response.ok) {
+              throw new Error(`An error has occured: ${response.status}`);
+            }
+            return response.json().then(emission => ({
+              ...response,
+              value: emission.Coefficient_EmissionCO2
+            }));
+          })
+        );
+
+        const emissions = await Promise.all(emissionsPromises);
+
+        this.questionsWithResponses = questionDetails.map((question, index) => ({
+          id: question.ID_Question,
+          question: question.Texte,
+          answers: emissions.filter(emission => emission.ID_Question === question.ID_Question).map(response => ({
+            text: response.Texte_reponse,
+            value: response.value
+          })),
+          type: question.Type,
+          categorie: question.Catégorie
+        }));
+        console.log(this.questionsWithResponses)
+      } catch (error) {
+        console.error('There was an error!', error);
+      }
+    },
+    getRandomItems(arr, count) {
+      const shuffled = arr.sort(() => 0.5 - Math.random());
+      return shuffled.slice(0, count);
+    },
 
 }
 }
